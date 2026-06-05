@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { Product } from '@/types'
 import { useWishlist } from '@/app/context/WishlistContext'
 import Toast, { useToast } from '@/components/ui/Toast'
+import { img } from '@/lib/image'
 
 interface ProductCardProps {
   product: Product
@@ -93,7 +94,7 @@ export default function ProductCard({ product, imageHeight }: ProductCardProps) 
             }
           >
             <Image
-              src={product.image}
+              src={img(product.image)}
               alt={product.name}
               fill
               className="object-cover transition-transform duration-500 group-hover:scale-105"

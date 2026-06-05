@@ -3,6 +3,7 @@
 import { useEffect, useState, useRef, useCallback } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
+import { img } from '@/lib/image'
 
 const heroSlides = [
   { src: "/images/the-lynux.png",         name: "The Lynux",        price: "From R1,099.00", slug: "the-lynux",        tagline: "Shoes made",      taglineItalic: "for every",  taglineEnd: "occasion"  },
@@ -166,7 +167,7 @@ export default function Hero() {
       >
         {/* Current image */}
         <Image
-          src={current.src}
+          src={img(current.src)}
           alt={current.name}
           fill
           className="object-cover object-center"
@@ -178,7 +179,7 @@ export default function Hero() {
         {/* Next image */}
         {next && (
           <Image
-            src={next.src}
+            src={img(next.src)}
             alt={next.name}
             fill
             className="object-cover object-center"
@@ -189,7 +190,7 @@ export default function Hero() {
 
         {/* Preload hidden slides */}
         {heroSlides.slice(1).map((slide, i) => (
-          <Image key={i} src={slide.src} alt="" fill sizes="1px"
+          <Image key={i} src={img(slide.src)} alt="" fill sizes="1px"
             style={{ opacity: 0, pointerEvents: 'none' }} aria-hidden />
         ))}
 

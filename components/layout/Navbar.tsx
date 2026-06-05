@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation'
 import { useCart } from '@/app/context/CartContext'
 import { useWishlist } from '@/app/context/WishlistContext'
 import { getAllProducts } from '@/lib/products'
+import { img } from '@/lib/image'
 import { Product } from '@/types'
 
 const formatPrice = (price: number): string =>
@@ -79,7 +80,7 @@ export default function Navbar() {
             {/* Logo */}
             <Link href="/" className="flex-shrink-0">
               <Image
-                src="/images/logo.png"
+                src={img('/images/logo.png')}
                 alt="Lynux Espadrilles"
                 width={110}
                 height={70}
@@ -186,7 +187,7 @@ export default function Navbar() {
                       className="w-full flex items-center gap-4 py-3 hover:bg-sand transition-colors duration-150 text-left"
                     >
                       <div className="relative w-10 h-10 flex-shrink-0 bg-sand overflow-hidden">
-                        <Image src={product.image} alt={product.name} fill className="object-cover" sizes="40px" />
+                        <Image src={img(product.image)} alt={product.name} fill className="object-cover" sizes="40px" />
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="font-cormorant font-semibold text-sm text-ink">{product.name}</p>

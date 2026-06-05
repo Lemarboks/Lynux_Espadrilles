@@ -9,6 +9,7 @@ import ProductCard from '@/components/shop/ProductCard'
 import { Colour } from '@/types'
 import { useWishlist } from '@/app/context/WishlistContext'
 import Toast, { useToast } from '@/components/ui/Toast'
+import { img } from '@/lib/image'
 
 const formatPrice = (price: number): string =>
   'R' + price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
@@ -196,7 +197,7 @@ export default function ProductPageClient({ slug }: { slug: string }) {
         }}
       >
         <div className="relative w-10 h-10 flex-shrink-0 overflow-hidden rounded bg-sand">
-          <Image src={thumbnailSrc} alt={product.name} fill className="object-cover" sizes="40px" />
+          <Image src={img(thumbnailSrc)} alt={product.name} fill className="object-cover" sizes="40px" />
         </div>
         <div className="flex-1 min-w-0">
           <p className="font-cormorant font-semibold text-base text-ink leading-none">{product.name}</p>
@@ -237,7 +238,7 @@ export default function ProductPageClient({ slug }: { slug: string }) {
               <div className="relative aspect-square bg-sand overflow-hidden mb-4">
                 {mainImage && (
                   <Image
-                    src={mainImage}
+                    src={img(mainImage)}
                     alt={product.name}
                     fill
                     className="object-cover"
@@ -261,15 +262,15 @@ export default function ProductPageClient({ slug }: { slug: string }) {
               </div>
               {product.images.length > 1 && (
                 <div className="flex gap-3 flex-wrap">
-                  {product.images.map((img, i) => (
+                  {product.images.map((imageSrc, i) => (
                     <button
                       key={i}
-                      onClick={() => switchImage(img)}
+                      onClick={() => switchImage(imageSrc)}
                       className={`relative w-20 h-20 flex-shrink-0 overflow-hidden border-2 transition-all duration-200 ${
-                        mainImage === img ? 'border-clay' : 'border-transparent hover:border-sand-dark'
+                        mainImage === imageSrc ? 'border-clay' : 'border-transparent hover:border-sand-dark'
                       }`}
                     >
-                      <Image src={img} alt={`${product.name} view ${i + 1}`} fill className="object-cover" sizes="80px" />
+                      <Image src={img(imageSrc)} alt={`${product.name} view ${i + 1}`} fill className="object-cover" sizes="80px" />
                     </button>
                   ))}
                 </div>

@@ -1,4 +1,5 @@
 import Image from 'next/image'
+import { img } from '@/lib/image'
 
 const instagramImages = [
   { src: '/images/the-lynux-6.jpg', alt: 'Lynux lifestyle' },
@@ -35,7 +36,7 @@ export default function InstagramSection() {
               className="group relative aspect-square overflow-hidden block"
             >
               <Image
-                src={src}
+                src={img(src)}
                 alt={alt}
                 fill
                 className="object-cover transition-transform duration-500 group-hover:scale-105"

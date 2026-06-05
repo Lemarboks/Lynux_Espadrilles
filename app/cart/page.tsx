@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { useCart } from '@/app/context/CartContext'
+import { img } from '@/lib/image'
 
 const formatPrice = (price: number): string =>
   'R' + price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
@@ -37,7 +38,7 @@ export default function CartPage() {
             <div key={item.cartId} className="flex gap-6 py-6 border-b border-sand-dark">
               <div className="relative w-24 h-24 bg-sand flex-shrink-0">
                 <Image
-                  src={item.colourImage || item.product.image}
+                  src={img(item.colourImage || item.product.image)}
                   alt={item.product.name}
                   fill
                   className="object-cover"

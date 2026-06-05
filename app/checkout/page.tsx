@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useCart } from '@/app/context/CartContext'
+import { img } from '@/lib/image'
 
 declare global {
   interface Window {
@@ -295,7 +296,7 @@ export default function CheckoutPage() {
                 {cartItems.map(item => (
                   <div key={item.cartId} className="flex gap-4">
                     <div className="relative w-16 h-16 bg-cream flex-shrink-0 overflow-hidden">
-                      <Image src={item.product.image} alt={item.product.name} fill className="object-cover" sizes="64px" />
+                      <Image src={img(item.product.image)} alt={item.product.name} fill className="object-cover" sizes="64px" />
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="font-cormorant font-semibold text-base text-ink leading-tight">{item.product.name}</p>
