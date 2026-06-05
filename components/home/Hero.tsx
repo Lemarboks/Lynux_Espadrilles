@@ -20,6 +20,8 @@ const heroSlides = [
 
 const INTERVAL = 4000
 const FADE_DURATION = 800
+const HERO_VIDEO = '/videos/lynnux-hero.mp4'
+const HERO_POSTER = '/videos/lynnux-hero-poster.jpg'
 
 export default function Hero() {
   const [visible, setVisible] = useState(false)
@@ -84,7 +86,31 @@ export default function Hero() {
   const next = nextIndex !== null ? heroSlides[nextIndex] : null
 
   return (
-    <section style={{ display: 'flex', minHeight: '100vh', overflow: 'hidden', background: '#FDFCF9' }}>
+    <section
+      className="home-hero"
+      style={{
+        display: 'flex',
+        minHeight: '100vh',
+        overflow: 'hidden',
+        background: '#FDFCF9',
+        position: 'relative',
+        isolation: 'isolate',
+      }}
+    >
+      <div className="hero-video-layer" aria-hidden>
+        <video
+          className="hero-video"
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="metadata"
+          poster={img(HERO_POSTER)}
+        >
+          <source src={img(HERO_VIDEO)} type="video/mp4" />
+        </video>
+        <div className="hero-video-wash" />
+      </div>
 
       {/* ── Left panel ── */}
       <div
@@ -93,13 +119,19 @@ export default function Hero() {
           flex: '0 0 50%',
           display: 'flex',
           alignItems: 'center',
-          background: '#FDFCF9',
           paddingTop: 80,
+          position: 'relative',
+          zIndex: 1,
         }}
       >
         <div
           className={`transition-all duration-700 ease-out ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
-          style={{ padding: '0 clamp(24px, 6vw, 80px)', width: '100%' }}
+          style={{
+            padding: '0 clamp(24px, 6vw, 80px)',
+            width: '100%',
+            background: 'rgba(253, 252, 249, 0.80)',
+            backdropFilter: 'blur(2px)',
+          }}
         >
           <p className="font-dm text-xs tracking-[0.25em] uppercase text-clay font-medium mb-6">
             Handcrafted in South Africa
@@ -161,7 +193,7 @@ export default function Hero() {
       {/* ── Right panel ── */}
       <div
         className={`hero-right transition-all duration-700 delay-200 ease-out ${visible ? 'opacity-100' : 'opacity-0'}`}
-        style={{ flex: '0 0 50%', position: 'relative', overflow: 'hidden' }}
+        style={{ flex: '0 0 50%', position: 'relative', overflow: 'hidden', zIndex: 1 }}
         onMouseEnter={() => { setHovered(true); setArrowsVisible(true) }}
         onMouseLeave={() => { setHovered(false); setArrowsVisible(false) }}
       >
@@ -173,7 +205,7 @@ export default function Hero() {
           className="object-cover object-center"
           priority
           sizes="50vw"
-          style={{ opacity: transitioning ? 0 : 1, transition: `opacity ${FADE_DURATION}ms ease-in-out` }}
+          style={{ opacity: transitioning ? 0 : 0.88, transition: `opacity ${FADE_DURATION}ms ease-in-out` }}
         />
 
         {/* Next image */}
@@ -184,22 +216,16 @@ export default function Hero() {
             fill
             className="object-cover object-center"
             sizes="50vw"
-            style={{ opacity: transitioning ? 1 : 0, transition: `opacity ${FADE_DURATION}ms ease-in-out` }}
+            style={{ opacity: transitioning ? 0.88 : 0, transition: `opacity ${FADE_DURATION}ms ease-in-out` }}
           />
         )}
-
-        {/* Preload hidden slides */}
-        {heroSlides.slice(1).map((slide, i) => (
-          <Image key={i} src={img(slide.src)} alt="" fill sizes="1px"
-            style={{ opacity: 0, pointerEvents: 'none' }} aria-hidden />
-        ))}
 
         {/* Blend gradient */}
         <div
           className="hero-blend"
           style={{
             position: 'absolute', left: 0, top: 0, bottom: 0, width: 120,
-            background: 'linear-gradient(to right, #FDFCF9 0%, transparent 100%)',
+            background: 'linear-gradient(to right, rgba(253,252,249,0.80) 0%, transparent 100%)',
             zIndex: 2, pointerEvents: 'none',
           }}
         />
@@ -269,14 +295,44 @@ export default function Hero() {
 
       {/* Mobile / responsive styles */}
       <style>{`
+        .hero-video-layer {
+          position: absolute;
+          inset: 0;
+          z-index: 0;
+          overflow: hidden;
+          background: #FDFCF9 url('${img(HERO_POSTER)}') center / cover no-repeat;
+        }
+        .hero-video {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          object-position: center;
+          opacity: 0.56;
+          filter: saturate(0.94) contrast(0.94);
+        }
+        .hero-video-wash {
+          position: absolute;
+          inset: 0;
+          background:
+            linear-gradient(90deg, rgba(253,252,249,0.72) 0%, rgba(253,252,249,0.28) 48%, rgba(28,26,23,0.12) 100%),
+            linear-gradient(0deg, rgba(253,252,249,0.16), rgba(253,252,249,0.16));
+          pointer-events: none;
+        }
         @media (max-width: 1023px) {
-          section { flex-direction: column; }
+          .home-hero { flex-direction: column; }
           .hero-left { flex: none !important; width: 100% !important; padding-top: 80px !important; padding-bottom: 32px !important; }
           .hero-right { flex: none !important; width: 100% !important; height: 60vw !important; min-height: 280px !important; }
           .hero-blend { display: none !important; }
+          .hero-video {
+            opacity: 0.42;
+          }
+          .hero-video-wash {
+            background: linear-gradient(180deg, rgba(253,252,249,0.82) 0%, rgba(253,252,249,0.45) 52%, rgba(253,252,249,0.18) 100%);
+          }
         }
         @media (prefers-reduced-motion: reduce) {
           * { transition-duration: 0ms !important; animation-duration: 0ms !important; }
+          .hero-video { display: none; }
         }
       `}</style>
     </section>
