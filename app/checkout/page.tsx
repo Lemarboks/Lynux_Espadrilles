@@ -1,9 +1,26 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useCart } from '@/app/context/CartContext'
+
+declare global {
+  interface Window {
+    PaystackPop?: {
+      setup: (options: {
+        key: string
+        email: string
+        amount: number
+        currency: string
+        ref: string
+        metadata: Record<string, unknown>
+        callback: (response: { reference: string }) => void
+        onClose: () => void
+      }) => { openIframe: () => void }
+    }
+  }
+}
 
 const formatPrice = (price: number): string =>
   'R' + price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
@@ -40,6 +57,27 @@ export default function CheckoutPage() {
   const [paymentError, setPaymentError] = useState('')
   const [orderRef] = useState(() => 'LYN-' + Math.floor(1000 + Math.random() * 9000))
 
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    if (params.get('reference') || params.get('trxref')) {
+      clearCart()
+      setSubmitted(true)
+    }
+  }, [clearCart])
+
+  useEffect(() => {
+    if (window.PaystackPop) return
+
+    const script = document.createElement('script')
+    script.src = 'https://js.paystack.co/v1/inline.js'
+    script.async = true
+    document.body.appendChild(script)
+
+    return () => {
+      script.remove()
+    }
+  }, [])
+
   const validate = (): boolean => {
     const e: FormErrors = {}
     if (!form.fullName.trim()) e.fullName = 'Full name is required'
@@ -63,61 +101,57 @@ export default function CheckoutPage() {
     setLoading(true)
     setPaymentError('')
 
-    try {
-      const res = await fetch('/api/paystack', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          email: form.email,
-          amount: total,
-          reference: orderRef,
-          metadata: {
-            fullName: form.fullName,
-            phone: form.phone,
-            address: `${form.street}, ${form.suburb}, ${form.city}, ${form.province}, ${form.postalCode}`,
-            notes: form.notes,
-            items: cartItems.map(i => ({
-              name: i.product.name,
-              quantity: i.quantity,
-              size: i.size,
-              colour: i.colour,
-              jute: i.jute,
-              toe: i.toe,
-            })),
-          },
-        }),
-      })
+    const publicKey = process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY
 
-      const data = await res.json()
-
-      if (!res.ok || !data.authorizationUrl) {
-        setPaymentError(data.error || 'Could not initialize payment. Please try again.')
-        setLoading(false)
-        return
-      }
-
-      // Redirect to Paystack hosted payment page
-      window.location.href = data.authorizationUrl
-    } catch {
-      setPaymentError('Something went wrong. Please try again.')
+    if (!publicKey) {
+      setPaymentError('Payment is not configured yet. Please add the Paystack public key.')
       setLoading(false)
+      return
     }
+
+    if (!window.PaystackPop) {
+      setPaymentError('Payment is still loading. Please try again in a moment.')
+      setLoading(false)
+      return
+    }
+
+    const handler = window.PaystackPop.setup({
+      key: publicKey,
+      email: form.email,
+      amount: Math.round(total * 100),
+      currency: 'ZAR',
+      ref: orderRef,
+      metadata: {
+        fullName: form.fullName,
+        phone: form.phone,
+        address: `${form.street}, ${form.suburb}, ${form.city}, ${form.province}, ${form.postalCode}`,
+        notes: form.notes,
+        items: cartItems.map(i => ({
+          name: i.product.name,
+          quantity: i.quantity,
+          size: i.size,
+          colour: i.colour,
+          jute: i.jute,
+          toe: i.toe,
+        })),
+      },
+      callback: () => {
+        clearCart()
+        setSubmitted(true)
+        setLoading(false)
+      },
+      onClose: () => {
+        setLoading(false)
+      },
+    })
+
+    handler.openIframe()
   }
 
   const inputClass = (field: keyof FormErrors) =>
     `w-full font-dm text-sm text-ink border px-4 py-3 bg-cream focus:outline-none focus:border-clay transition-colors duration-200 ${
       errors[field] ? 'border-accent' : 'border-sand-dark'
     }`
-
-  // Payment success — Paystack redirects back with ?reference=... and ?trxref=...
-  // This is handled by checking submitted state set from URL params on mount
-  if (typeof window !== 'undefined') {
-    const params = new URLSearchParams(window.location.search)
-    if (params.get('reference') && !submitted) {
-      clearCart()
-      setSubmitted(true)
-    }
-  }
 
   if (cartItems.length === 0 && !submitted) {
     return (
