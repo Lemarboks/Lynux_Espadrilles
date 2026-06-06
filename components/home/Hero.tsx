@@ -419,7 +419,16 @@ export default function Hero() {
             gap: 3px;
           }
           .hero-video {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            width: 100%;
+            height: auto;
+            min-height: 0;
+            object-fit: contain;
+            object-position: center;
             opacity: 0.72;
+            transform: translate(-50%, -50%) scale(0.97);
           }
         }
         @media (max-width: 380px) {
@@ -440,6 +449,9 @@ export default function Hero() {
           }
           .hero-product-frame {
             width: min(42vw, 155px);
+          }
+          .hero-video {
+            transform: translate(-50%, -50%) scale(0.92);
           }
         }
         @media (prefers-reduced-motion: reduce) {
