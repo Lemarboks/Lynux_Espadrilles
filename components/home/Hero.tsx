@@ -129,8 +129,6 @@ export default function Hero() {
           style={{
             padding: '0 clamp(24px, 6vw, 80px)',
             width: '100%',
-            background: 'rgba(253, 252, 249, 0.80)',
-            backdropFilter: 'blur(2px)',
           }}
         >
           <p className="font-dm text-xs tracking-[0.25em] uppercase text-clay font-medium mb-6">
@@ -225,7 +223,7 @@ export default function Hero() {
           className="hero-blend"
           style={{
             position: 'absolute', left: 0, top: 0, bottom: 0, width: 120,
-            background: 'linear-gradient(to right, rgba(253,252,249,0.80) 0%, transparent 100%)',
+            background: 'transparent',
             zIndex: 2, pointerEvents: 'none',
           }}
         />
@@ -275,21 +273,20 @@ export default function Hero() {
         {/* Product badge */}
         <Link href={`/product/${current.slug}`}
           style={{
-            position: 'absolute', bottom: 32, left: 32,
-            background: 'rgba(255,255,255,0.90)',
-            backdropFilter: 'blur(8px)',
-            border: '1px solid rgba(200,169,126,0.3)',
-            borderRadius: 12,
-            padding: '12px 16px',
+            position: 'absolute', bottom: 18, left: 18,
+            background: 'rgba(255,255,255,0.72)',
+            border: '1px solid rgba(200,169,126,0.22)',
+            borderRadius: 8,
+            padding: '8px 10px',
             zIndex: 10,
             opacity: badgeVisible ? 1 : 0,
             transition: 'opacity 300ms ease',
             textDecoration: 'none',
             display: 'block',
           }}>
-          <p className="font-dm text-[10px] tracking-[0.15em] uppercase text-ink-light">Now Viewing</p>
-          <p className="font-cormorant font-semibold text-lg text-ink leading-tight">{current.name}</p>
-          <p className="font-dm text-xs text-ink-mid">{current.price}</p>
+          <p className="font-dm text-[9px] tracking-[0.12em] uppercase text-ink-light">Now Viewing</p>
+          <p className="font-cormorant font-semibold text-base text-ink leading-tight">{current.name}</p>
+          <p className="font-dm text-[11px] text-ink-mid">{current.price}</p>
         </Link>
       </div>
 
@@ -307,16 +304,10 @@ export default function Hero() {
           height: 100%;
           object-fit: cover;
           object-position: center;
-          opacity: 0.56;
-          filter: saturate(0.94) contrast(0.94);
+          opacity: 0.82;
         }
         .hero-video-wash {
-          position: absolute;
-          inset: 0;
-          background:
-            linear-gradient(90deg, rgba(253,252,249,0.72) 0%, rgba(253,252,249,0.28) 48%, rgba(28,26,23,0.12) 100%),
-            linear-gradient(0deg, rgba(253,252,249,0.16), rgba(253,252,249,0.16));
-          pointer-events: none;
+          display: none;
         }
         @media (max-width: 1023px) {
           .home-hero { flex-direction: column; }
@@ -324,10 +315,7 @@ export default function Hero() {
           .hero-right { flex: none !important; width: 100% !important; height: 60vw !important; min-height: 280px !important; }
           .hero-blend { display: none !important; }
           .hero-video {
-            opacity: 0.42;
-          }
-          .hero-video-wash {
-            background: linear-gradient(180deg, rgba(253,252,249,0.82) 0%, rgba(253,252,249,0.45) 52%, rgba(253,252,249,0.18) 100%);
+            opacity: 0.72;
           }
         }
         @media (prefers-reduced-motion: reduce) {
