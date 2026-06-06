@@ -193,46 +193,65 @@ export default function Hero() {
         onMouseEnter={() => { setHovered(true); setArrowsVisible(true) }}
         onMouseLeave={() => { setHovered(false); setArrowsVisible(false) }}
       >
-        {/* Current image */}
-        <Image
-          src={img(current.src)}
-          alt={current.name}
-          fill
-          className="object-contain object-center"
-          priority
-          sizes="50vw"
-          style={{
-            opacity: transitioning ? 0 : 0.78,
-            transform: 'scale(0.72)',
-            transition: `opacity ${FADE_DURATION}ms ease-in-out`,
-          }}
-        />
+        <div className="hero-product-frame">
+          <div className="hero-product-image">
+            <Image
+              src={img(current.src)}
+              alt={current.name}
+              fill
+              className="object-contain object-center"
+              priority
+              sizes="(max-width: 1023px) 68vw, 30vw"
+              style={{
+                opacity: transitioning ? 0 : 1,
+                transition: `opacity ${FADE_DURATION}ms ease-in-out`,
+              }}
+            />
 
-        {/* Next image */}
-        {next && (
-          <Image
-            src={img(next.src)}
-            alt={next.name}
-            fill
-            className="object-contain object-center"
-            sizes="50vw"
-            style={{
-              opacity: transitioning ? 0.78 : 0,
-              transform: 'scale(0.72)',
-              transition: `opacity ${FADE_DURATION}ms ease-in-out`,
-            }}
-          />
-        )}
+            {next && (
+              <Image
+                src={img(next.src)}
+                alt={next.name}
+                fill
+                className="object-contain object-center"
+                sizes="(max-width: 1023px) 68vw, 30vw"
+                style={{
+                  opacity: transitioning ? 1 : 0,
+                  transition: `opacity ${FADE_DURATION}ms ease-in-out`,
+                }}
+              />
+            )}
+          </div>
 
-        {/* Blend gradient */}
-        <div
-          className="hero-blend"
-          style={{
-            position: 'absolute', left: 0, top: 0, bottom: 0, width: 120,
-            background: 'transparent',
-            zIndex: 2, pointerEvents: 'none',
-          }}
-        />
+          <div className="hero-product-footer">
+            <Link href={`/product/${current.slug}`}
+              style={{
+                opacity: badgeVisible ? 1 : 0,
+                transition: 'opacity 300ms ease',
+                textDecoration: 'none',
+                display: 'block',
+              }}>
+              <p className="font-dm text-[9px] tracking-[0.12em] uppercase text-ink-light">Now Viewing</p>
+              <p className="font-cormorant font-semibold text-base text-ink leading-tight">{current.name}</p>
+              <p className="font-dm text-[11px] text-ink-mid">{current.price}</p>
+            </Link>
+
+            <div className="hero-cycle-dots">
+              {heroSlides.map((_, i) => (
+                <button key={i} onClick={() => goToSlide(i)} aria-label={`Go to slide ${i + 1}`}
+                  style={{
+                    width: i === currentIndex ? 9 : 6,
+                    height: i === currentIndex ? 9 : 6,
+                    borderRadius: '50%',
+                    background: i === currentIndex ? '#C8A97E' : 'rgba(28,26,23,0.26)',
+                    border: 'none', cursor: 'pointer', padding: 0,
+                    transition: 'all 300ms ease',
+                  }}
+                />
+              ))}
+            </div>
+          </div>
+        </div>
 
         {/* Left arrow */}
         <button onClick={e => { e.preventDefault(); goBack() }} aria-label="Previous slide"
@@ -260,40 +279,6 @@ export default function Hero() {
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5"><polyline points="9 18 15 12 9 6"/></svg>
         </button>
 
-        {/* Navigation dots */}
-        <div style={{ position: 'absolute', bottom: 24, left: 0, right: 0, display: 'flex', justifyContent: 'center', gap: 6, zIndex: 10 }}>
-          {heroSlides.map((_, i) => (
-            <button key={i} onClick={() => goToSlide(i)} aria-label={`Go to slide ${i + 1}`}
-              style={{
-                width: i === currentIndex ? 10 : 8,
-                height: i === currentIndex ? 10 : 8,
-                borderRadius: '50%',
-                background: i === currentIndex ? '#C8A97E' : 'rgba(255,255,255,0.7)',
-                border: 'none', cursor: 'pointer', padding: 0,
-                transition: 'all 300ms ease',
-              }}
-            />
-          ))}
-        </div>
-
-        {/* Product badge */}
-        <Link href={`/product/${current.slug}`}
-          style={{
-            position: 'absolute', bottom: 18, left: 18,
-            background: 'rgba(255,255,255,0.72)',
-            border: '1px solid rgba(200,169,126,0.22)',
-            borderRadius: 8,
-            padding: '8px 10px',
-            zIndex: 10,
-            opacity: badgeVisible ? 1 : 0,
-            transition: 'opacity 300ms ease',
-            textDecoration: 'none',
-            display: 'block',
-          }}>
-          <p className="font-dm text-[9px] tracking-[0.12em] uppercase text-ink-light">Now Viewing</p>
-          <p className="font-cormorant font-semibold text-base text-ink leading-tight">{current.name}</p>
-          <p className="font-dm text-[11px] text-ink-mid">{current.price}</p>
-        </Link>
       </div>
 
       {/* Mobile / responsive styles */}
@@ -315,11 +300,65 @@ export default function Hero() {
         .hero-video-wash {
           display: none;
         }
+        .hero-product-frame {
+          position: absolute;
+          left: 50%;
+          top: 52%;
+          width: min(68%, 430px);
+          aspect-ratio: 4 / 5;
+          transform: translate(-50%, -50%);
+          z-index: 8;
+          overflow: hidden;
+          border-radius: 8px;
+          border: 1px solid rgba(255,255,255,0.34);
+          background: rgba(253,252,249,0.18);
+          box-shadow: 0 18px 42px rgba(28,26,23,0.16);
+        }
+        .hero-product-image {
+          position: absolute;
+          inset: 4% 5% 22%;
+        }
+        .hero-product-footer {
+          position: absolute;
+          left: 10px;
+          right: 10px;
+          bottom: 10px;
+          min-height: 58px;
+          display: flex;
+          align-items: end;
+          justify-content: space-between;
+          gap: 12px;
+          padding: 9px 10px;
+          border-radius: 7px;
+          background: rgba(255,255,255,0.76);
+          border: 1px solid rgba(200,169,126,0.18);
+        }
+        .hero-cycle-dots {
+          display: flex;
+          align-items: center;
+          justify-content: flex-end;
+          gap: 5px;
+          max-width: 112px;
+          flex-wrap: wrap;
+          padding-bottom: 3px;
+        }
         @media (max-width: 1023px) {
           .home-hero { flex-direction: column; }
           .hero-left { flex: none !important; width: 100% !important; padding-top: 80px !important; padding-bottom: 32px !important; }
           .hero-right { flex: none !important; width: 100% !important; height: 60vw !important; min-height: 280px !important; }
           .hero-blend { display: none !important; }
+          .hero-product-frame {
+            width: min(72vw, 320px);
+            top: 50%;
+            aspect-ratio: 5 / 4;
+          }
+          .hero-product-image {
+            inset: 5% 5% 27%;
+          }
+          .hero-product-footer {
+            min-height: 52px;
+            padding: 7px 8px;
+          }
           .hero-video {
             opacity: 0.72;
           }
