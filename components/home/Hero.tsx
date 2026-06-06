@@ -21,7 +21,6 @@ const heroSlides = [
 const INTERVAL = 4000
 const FADE_DURATION = 800
 const HERO_VIDEO = '/videos/lynnux-hero.mp4'
-const HERO_POSTER = '/videos/lynnux-hero-poster.jpg'
 
 export default function Hero() {
   const [visible, setVisible] = useState(false)
@@ -105,7 +104,6 @@ export default function Hero() {
           loop
           playsInline
           preload="metadata"
-          poster={img(HERO_POSTER)}
         >
           <source src={img(HERO_VIDEO)} type="video/mp4" />
         </video>
@@ -305,7 +303,7 @@ export default function Hero() {
           inset: 0;
           z-index: 0;
           overflow: hidden;
-          background: #FDFCF9 url('${img(HERO_POSTER)}') center / cover no-repeat;
+          background: #FDFCF9;
         }
         .hero-video {
           width: 100%;
