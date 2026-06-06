@@ -347,11 +347,6 @@ export default function Hero() {
             flex-direction: row;
             min-height: 100svh;
           }
-          .hero-video-layer {
-            left: 52%;
-            width: 48%;
-            right: auto;
-          }
           .hero-left {
             flex: 0 0 52% !important;
             width: 52% !important;
@@ -428,10 +423,6 @@ export default function Hero() {
           }
         }
         @media (max-width: 380px) {
-          .hero-video-layer {
-            left: 54%;
-            width: 46%;
-          }
           .hero-left {
             flex-basis: 54% !important;
             width: 54% !important;
