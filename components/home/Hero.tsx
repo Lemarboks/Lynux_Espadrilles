@@ -200,10 +200,14 @@ export default function Hero() {
           src={img(current.src)}
           alt={current.name}
           fill
-          className="object-cover object-center"
+          className="object-contain object-center"
           priority
           sizes="50vw"
-          style={{ opacity: transitioning ? 0 : 0.88, transition: `opacity ${FADE_DURATION}ms ease-in-out` }}
+          style={{
+            opacity: transitioning ? 0 : 0.78,
+            transform: 'scale(0.72)',
+            transition: `opacity ${FADE_DURATION}ms ease-in-out`,
+          }}
         />
 
         {/* Next image */}
@@ -212,9 +216,13 @@ export default function Hero() {
             src={img(next.src)}
             alt={next.name}
             fill
-            className="object-cover object-center"
+            className="object-contain object-center"
             sizes="50vw"
-            style={{ opacity: transitioning ? 0.88 : 0, transition: `opacity ${FADE_DURATION}ms ease-in-out` }}
+            style={{
+              opacity: transitioning ? 0.78 : 0,
+              transform: 'scale(0.72)',
+              transition: `opacity ${FADE_DURATION}ms ease-in-out`,
+            }}
           />
         )}
 
