@@ -428,7 +428,7 @@ export default function Hero() {
             object-fit: contain;
             object-position: center;
             opacity: 0.72;
-            transform: translate(-50%, -50%) scale(0.97);
+            transform: translate(-50%, -50%) scale(0.9);
           }
         }
         @media (max-width: 380px) {
@@ -451,7 +451,7 @@ export default function Hero() {
             width: min(42vw, 155px);
           }
           .hero-video {
-            transform: translate(-50%, -50%) scale(0.92);
+            transform: translate(-50%, -50%) scale(0.84);
           }
         }
         @media (prefers-reduced-motion: reduce) {
