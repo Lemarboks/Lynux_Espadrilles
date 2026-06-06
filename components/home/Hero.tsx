@@ -343,24 +343,103 @@ export default function Hero() {
           padding-bottom: 3px;
         }
         @media (max-width: 1023px) {
-          .home-hero { flex-direction: column; }
-          .hero-left { flex: none !important; width: 100% !important; padding-top: 80px !important; padding-bottom: 32px !important; }
-          .hero-right { flex: none !important; width: 100% !important; height: 60vw !important; min-height: 280px !important; }
+          .home-hero {
+            flex-direction: row;
+            min-height: 100svh;
+          }
+          .hero-left {
+            flex: 0 0 52% !important;
+            width: 52% !important;
+            padding-top: 72px !important;
+            padding-bottom: 18px !important;
+          }
+          .hero-left > div {
+            padding: 0 0 0 18px !important;
+            max-width: 100%;
+          }
+          .hero-left p:first-child {
+            font-size: 8px !important;
+            letter-spacing: 0.16em !important;
+            margin-bottom: 12px !important;
+          }
+          .hero-left h1 {
+            font-size: clamp(2rem, 12vw, 3.15rem) !important;
+            line-height: 0.96 !important;
+          }
+          .hero-left .relative.mb-6 {
+            margin-bottom: 12px !important;
+          }
+          .hero-left p.font-dm.text-base {
+            max-width: 15rem !important;
+            font-size: 11px !important;
+            line-height: 1.45 !important;
+            margin-bottom: 16px !important;
+          }
+          .hero-left .flex.flex-wrap {
+            gap: 8px !important;
+          }
+          .hero-left a {
+            font-size: 10px !important;
+            padding: 9px 11px !important;
+          }
+          .hero-right {
+            flex: 0 0 48% !important;
+            width: 48% !important;
+            min-height: 100svh !important;
+            height: auto !important;
+          }
           .hero-blend { display: none !important; }
           .hero-product-frame {
-            width: min(72vw, 320px);
-            top: 50%;
-            aspect-ratio: 5 / 4;
+            width: min(43vw, 190px);
+            top: 53%;
+            aspect-ratio: 4 / 5;
           }
           .hero-product-image {
-            inset: 5% 5% 27%;
+            inset: 5% 5% 30%;
           }
           .hero-product-footer {
-            min-height: 52px;
-            padding: 7px 8px;
+            left: 7px;
+            right: 7px;
+            bottom: 7px;
+            min-height: 56px;
+            padding: 7px;
+            gap: 7px;
+          }
+          .hero-product-footer p:first-child {
+            font-size: 7px !important;
+          }
+          .hero-product-footer p:nth-child(2) {
+            font-size: 13px !important;
+          }
+          .hero-product-footer p:nth-child(3) {
+            font-size: 9px !important;
+          }
+          .hero-cycle-dots {
+            max-width: 48px;
+            gap: 3px;
           }
           .hero-video {
             opacity: 0.72;
+          }
+        }
+        @media (max-width: 380px) {
+          .hero-left {
+            flex-basis: 54% !important;
+            width: 54% !important;
+          }
+          .hero-right {
+            flex-basis: 46% !important;
+            width: 46% !important;
+          }
+          .hero-left h1 {
+            font-size: clamp(1.75rem, 11vw, 2.55rem) !important;
+          }
+          .hero-left p.font-dm.text-base {
+            font-size: 10px !important;
+            max-width: 12rem !important;
+          }
+          .hero-product-frame {
+            width: min(42vw, 155px);
           }
         }
         @media (prefers-reduced-motion: reduce) {
