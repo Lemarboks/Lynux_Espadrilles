@@ -211,34 +211,33 @@ export default function Navbar() {
 
       {/* Mobile Menu */}
       {mobileOpen && (
-        <div className="fixed inset-0 z-50 md:hidden">
-          <div className="absolute inset-0 bg-ink/40" onClick={() => setMobileOpen(false)} />
-          <div className="absolute top-0 right-0 h-full w-72 bg-cream flex flex-col shadow-2xl">
-            <div className="flex items-center justify-between px-6 h-16 border-b border-sand-dark">
-              <span className="font-cormorant font-semibold text-xl text-ink">Menu</span>
+        <div className="fixed top-3 right-3 z-50 md:hidden">
+          <div className="w-52 bg-cream border border-sand-dark shadow-xl">
+            <div className="flex items-center justify-between px-4 h-12 border-b border-sand-dark">
+              <span className="font-cormorant font-semibold text-lg text-ink">Menu</span>
               <button onClick={() => setMobileOpen(false)} className="text-ink-light hover:text-ink transition-colors">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
                   <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
                 </svg>
               </button>
             </div>
-            <nav className="flex flex-col px-6 pt-8 gap-6">
+            <nav className="flex flex-col px-4 py-4 gap-3">
               {navLinks.map(({ label, href }) => (
                 <Link
                   key={label}
                   href={href}
                   onClick={() => setMobileOpen(false)}
-                  className="font-cormorant font-semibold text-3xl text-ink hover:text-clay transition-colors duration-200"
+                  className="font-cormorant font-semibold text-xl text-ink hover:text-clay transition-colors duration-200"
                 >
                   {label}
                 </Link>
               ))}
             </nav>
-            <div className="mt-auto px-6 pb-8 pt-6 border-t border-sand-dark">
+            <div className="px-4 pb-4 pt-3 border-t border-sand-dark">
               <p className="font-dm text-xs text-ink-light mb-2">Follow us</p>
               <a href="https://instagram.com/lynux_espadrille" target="_blank" rel="noopener noreferrer"
-                className="font-dm text-sm text-ink-mid hover:text-clay transition-colors flex items-center gap-2">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                className="font-dm text-xs text-ink-mid hover:text-clay transition-colors flex items-center gap-2">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
                   <rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/>
                   <circle cx="17.5" cy="6.5" r="0.5" fill="currentColor"/>
                 </svg>
