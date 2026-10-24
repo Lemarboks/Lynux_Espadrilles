@@ -1,36 +1,42 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Lynux Espadrilles
 
-## Getting Started
+Static Next.js storefront. Payments go through **Paystack** (popup checkout, ZAR). Orders can also be placed over WhatsApp from the cart page.
 
-First, run the development server:
+## Local development
 
 ```bash
+npm install
+cp .env.example .env.local   # then paste your pk_test_... key
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 1. Paystack setup
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+1. Create an account at https://dashboard.paystack.com and finish **business verification** (needed before live payments).
+2. **Settings → API Keys & Webhooks**: copy the **Test Public Key** (`pk_test_...`).
+3. Put it in `.env.local` as `NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY=pk_test_...`.
+4. Test a payment with Paystack's test card: `4084 0840 8408 4081`, any future expiry, CVV `408`, PIN `0000`, OTP `123456`.
+5. When everything works, switch to the **Live Public Key** (`pk_live_...`) and rebuild.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+> Only ever use the **public** key (`pk_...`). The **secret** key (`sk_...`) must never be put in this project. Everything here ends up in the browser.
 
-## Learn More
+### Before you ship any order
 
-To learn more about Next.js, take a look at the following resources:
+This site has no backend, so the browser works out the order total. A technical customer could change prices before paying. **For every order, open it in the Paystack dashboard and check the amount paid matches the items in its metadata** before you post anything.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 2. Hosting (Cloudflare Pages)
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+The site is hosted on Cloudflare Pages and rebuilds automatically on every push to `main`. The domain `lynuxespadrilles.co.za` is registered at xneelo; its nameservers point to Cloudflare.
 
-## Deploy on Vercel
+Cloudflare Pages project settings:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+| Setting | Value |
+|---|---|
+| Framework preset | None |
+| Build command | `npm run build` |
+| Build output directory | `out` |
+| Environment variable | `NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY` = your `pk_live_...` key |
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Node version comes from `.node-version`. Security headers live in `public/_headers`.
+
+To change the Paystack key: Cloudflare → your Pages project → **Settings → Variables and Secrets**, then redeploy (**Deployments → ⋯ → Retry deployment**).

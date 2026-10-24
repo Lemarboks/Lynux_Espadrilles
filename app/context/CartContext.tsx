@@ -1,6 +1,6 @@
 'use client'
 
-import { createContext, useContext, useState, ReactNode } from 'react'
+import { createContext, useCallback, useContext, useState, ReactNode } from 'react'
 import { Product, CartItem } from '@/types'
 
 interface CartContextType {
@@ -37,7 +37,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
     setCartItems(prev => prev.filter(item => item.cartId !== cartId))
   }
 
-  const clearCart = () => setCartItems([])
+  // Stable identity so effects that depend on it don't re-run every render
+  const clearCart = useCallback(() => setCartItems([]), [])
 
   const updateQuantity = (cartId: string, quantity: number) => {
     if (quantity <= 0) {

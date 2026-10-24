@@ -1,0 +1,15 @@
+# Cloudflare Pages response headers
+# Paystack's checkout popup needs *.paystack.co / *.paystack.com. If checkout ever stops opening,
+# check the browser console for "Content Security Policy" errors and widen the matching directive.
+
+/*
+  Strict-Transport-Security: max-age=31536000; includeSubDomains
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: SAMEORIGIN
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(self "https://checkout.paystack.com")
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://*.paystack.co https://*.paystack.com https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline' https://*.paystack.co https://*.paystack.com; img-src 'self' data: https:; font-src 'self' data:; media-src 'self'; connect-src 'self' https://*.paystack.co https://*.paystack.com https://cloudflareinsights.com; frame-src https://*.paystack.co https://*.paystack.com; form-action 'self' https://*.paystack.co https://*.paystack.com; frame-ancestors 'self'; base-uri 'self'; object-src 'none'
+
+# Next.js hashed assets never change, so cache them for a year
+/_next/static/*
+  Cache-Control: public, max-age=31536000, immutable

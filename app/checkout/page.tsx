@@ -56,11 +56,13 @@ export default function CheckoutPage() {
   const [submitted, setSubmitted] = useState(false)
   const [loading, setLoading] = useState(false)
   const [paymentError, setPaymentError] = useState('')
-  const [orderRef] = useState(() => 'LYN-' + Math.floor(1000 + Math.random() * 9000))
+  const [orderRef, setOrderRef] = useState('')
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
-    if (params.get('reference') || params.get('trxref')) {
+    const ref = params.get('reference') || params.get('trxref')
+    if (ref) {
+      setOrderRef(ref)
       clearCart()
       setSubmitted(true)
     }
@@ -116,12 +118,16 @@ export default function CheckoutPage() {
       return
     }
 
+    // Paystack rejects reused references, so every attempt gets a fresh, unguessable one
+    const rand = crypto.getRandomValues(new Uint32Array(2))
+    const ref = `LYN-${Date.now().toString(36)}-${rand[0].toString(36)}${rand[1].toString(36)}`.toUpperCase()
+
     const handler = window.PaystackPop.setup({
       key: publicKey,
-      email: form.email,
+      email: form.email.trim(),
       amount: Math.round(total * 100),
       currency: 'ZAR',
-      ref: orderRef,
+      ref,
       metadata: {
         fullName: form.fullName,
         phone: form.phone,
@@ -136,7 +142,8 @@ export default function CheckoutPage() {
           toe: i.toe,
         })),
       },
-      callback: () => {
+      callback: (response) => {
+        setOrderRef(response.reference)
         clearCart()
         setSubmitted(true)
         setLoading(false)
