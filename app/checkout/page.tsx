@@ -1,26 +1,30 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useCart } from '@/app/context/CartContext'
 import { img } from '@/lib/image'
+import { describeLine, PricedOrder } from '@/lib/order'
 
 declare global {
   interface Window {
-    PaystackPop?: {
-      setup: (options: {
-        key: string
-        email: string
-        amount: number
-        currency: string
-        ref: string
-        metadata: Record<string, unknown>
-        callback: (response: { reference: string }) => void
-        onClose: () => void
-      }) => { openIframe: () => void }
+    PaystackPop?: new () => {
+      resumeTransaction: (accessCode: string, callbacks?: {
+        onSuccess?: (tx: { reference: string }) => void
+        onCancel?: () => void
+        onError?: (error: { message: string }) => void
+      }) => void
     }
   }
+}
+
+interface Receipt {
+  status: 'paid' | 'mismatch' | 'pending' | 'failed'
+  reference: string
+  paidAt: string | null
+  fullName: string
+  order: PricedOrder | null
 }
 
 const formatPrice = (price: number): string =>
@@ -57,22 +61,37 @@ export default function CheckoutPage() {
   const [loading, setLoading] = useState(false)
   const [paymentError, setPaymentError] = useState('')
   const [orderRef, setOrderRef] = useState('')
+  const [receipt, setReceipt] = useState<Receipt | null>(null)
+
+  // Only the server can say a payment succeeded; the URL or popup callback alone can be faked
+  const confirmPayment = useCallback(async (reference: string) => {
+    setOrderRef(reference)
+    setSubmitted(true)
+    setReceipt(null)
+    let result: Receipt = { status: 'pending', reference, paidAt: null, fullName: '', order: null }
+    for (let attempt = 0; attempt < 4; attempt++) {
+      try {
+        const res = await fetch(`/api/verify?reference=${encodeURIComponent(reference)}`)
+        result = await res.json()
+      } catch {}
+      if (result.status !== 'pending') break
+      await new Promise(r => setTimeout(r, 2500))
+    }
+    if (result.status === 'paid') clearCart()
+    setReceipt(result)
+  }, [clearCart])
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
     const ref = params.get('reference') || params.get('trxref')
-    if (ref) {
-      setOrderRef(ref)
-      clearCart()
-      setSubmitted(true)
-    }
-  }, [clearCart])
+    if (ref) confirmPayment(ref)
+  }, [confirmPayment])
 
   useEffect(() => {
     if (window.PaystackPop) return
 
     const script = document.createElement('script')
-    script.src = 'https://js.paystack.co/v1/inline.js'
+    script.src = 'https://js.paystack.co/v2/inline.js'
     script.async = true
     document.body.appendChild(script)
 
@@ -104,56 +123,52 @@ export default function CheckoutPage() {
     setLoading(true)
     setPaymentError('')
 
-    const publicKey = process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY
+    // The server prices the cart from the catalogue; only ids and options are sent from here
+    let session: { accessCode?: string; authorizationUrl?: string; error?: string }
+    try {
+      const res = await fetch('/api/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          customer: form,
+          items: cartItems.map(i => ({
+            id: i.product.id,
+            size: i.size,
+            colour: i.colour,
+            jute: i.jute,
+            toe: i.toe,
+            quantity: i.quantity,
+          })),
+        }),
+      })
+      session = await res.json()
+    } catch {
+      session = { error: 'We couldn’t reach the payment service. Please check your connection and try again.' }
+    }
 
-    if (!publicKey) {
-      setPaymentError('Payment is not configured yet. Please add the Paystack public key.')
+    if (!session.accessCode || !session.authorizationUrl) {
+      setPaymentError(session.error ?? 'We couldn’t start the payment. Please try again.')
       setLoading(false)
       return
     }
 
     if (!window.PaystackPop) {
-      setPaymentError('Payment is still loading. Please try again in a moment.')
-      setLoading(false)
+      // Popup script blocked or slow: use Paystack's hosted page, which returns to /checkout/?reference=...
+      window.location.href = session.authorizationUrl
       return
     }
 
-    // Paystack rejects reused references, so every attempt gets a fresh, unguessable one
-    const rand = crypto.getRandomValues(new Uint32Array(2))
-    const ref = `LYN-${Date.now().toString(36)}-${rand[0].toString(36)}${rand[1].toString(36)}`.toUpperCase()
-
-    const handler = window.PaystackPop.setup({
-      key: publicKey,
-      email: form.email.trim(),
-      amount: Math.round(total * 100),
-      currency: 'ZAR',
-      ref,
-      metadata: {
-        fullName: form.fullName,
-        phone: form.phone,
-        address: `${form.street}, ${form.suburb}, ${form.city}, ${form.province}, ${form.postalCode}`,
-        notes: form.notes,
-        items: cartItems.map(i => ({
-          name: i.product.name,
-          quantity: i.quantity,
-          size: i.size,
-          colour: i.colour,
-          jute: i.jute,
-          toe: i.toe,
-        })),
-      },
-      callback: (response) => {
-        setOrderRef(response.reference)
-        clearCart()
-        setSubmitted(true)
+    new window.PaystackPop().resumeTransaction(session.accessCode, {
+      onSuccess: (tx) => {
         setLoading(false)
+        confirmPayment(tx.reference)
       },
-      onClose: () => {
+      onCancel: () => setLoading(false),
+      onError: (error) => {
+        setPaymentError(error.message || 'Payment failed. Please try again.')
         setLoading(false)
       },
     })
-
-    handler.openIframe()
   }
 
   const inputClass = (field: keyof FormErrors) =>
@@ -174,28 +189,97 @@ export default function CheckoutPage() {
     )
   }
 
-  if (submitted) {
+  if (submitted && !receipt) {
     return (
       <div className="pt-20 lg:pt-24 min-h-screen bg-cream flex items-center justify-center px-4">
         <div className="max-w-md w-full text-center">
-          <div className="flex justify-center mb-6">
-            <div className="w-20 h-20 rounded-full bg-clay/10 flex items-center justify-center">
-              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-clay">
-                <polyline points="20 6 9 17 4 12"/>
-              </svg>
-            </div>
-          </div>
-          <h1 className="font-cormorant font-semibold text-4xl text-ink mb-4">Payment Successful!</h1>
-          <p className="font-dm text-sm text-ink-light leading-relaxed mb-3">
-            Thank you for your order. We&apos;ve received your payment and will be in touch within 24 hours to confirm your order and shipping details.
+          <h1 className="font-cormorant font-semibold text-4xl text-ink mb-4">Confirming your payment…</h1>
+          <p className="font-dm text-sm text-ink-light">This only takes a moment. Please don&apos;t close this page.</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (submitted && receipt && receipt.status !== 'paid') {
+    const failed = receipt.status === 'failed'
+    return (
+      <div className="pt-20 lg:pt-24 min-h-screen bg-cream flex items-center justify-center px-4">
+        <div className="max-w-md w-full text-center">
+          <h1 className="font-cormorant font-semibold text-4xl text-ink mb-4">
+            {failed ? 'Payment not completed' : 'We’re still confirming your payment'}
+          </h1>
+          <p className="font-dm text-sm text-ink-light leading-relaxed mb-6">
+            {failed
+              ? 'Your payment didn’t go through and you have not been charged. Please try again.'
+              : 'If money left your account, don’t worry. We’ll check it and contact you. Please keep your reference below.'}
           </p>
           <div className="bg-sand px-6 py-4 mb-8">
-            <p className="font-dm text-xs text-ink-light uppercase tracking-widest mb-1">Order Reference</p>
-            <p className="font-cormorant font-semibold text-2xl text-ink">{orderRef}</p>
+            <p className="font-dm text-xs text-ink-light uppercase tracking-widest mb-1">Reference</p>
+            <p className="font-cormorant font-semibold text-2xl text-ink break-all">{orderRef}</p>
           </div>
-          <Link href="/shop" className="inline-block font-dm text-sm bg-clay hover:bg-clay-dark text-cream px-8 py-3.5 transition-all duration-300">
-            Continue Shopping
+          <Link href={failed ? '/cart' : '/shop'} className="inline-block font-dm text-sm bg-clay hover:bg-clay-dark text-cream px-8 py-3.5 transition-all duration-300">
+            {failed ? 'Back to Cart' : 'Continue Shopping'}
           </Link>
+        </div>
+      </div>
+    )
+  }
+
+  if (submitted && receipt) {
+    return (
+      <div className="pt-20 lg:pt-24 min-h-screen bg-cream flex items-center justify-center px-4 py-12">
+        <div className="max-w-md w-full">
+          <div className="text-center">
+            <div className="flex justify-center mb-6 print:hidden">
+              <div className="w-20 h-20 rounded-full bg-clay/10 flex items-center justify-center">
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-clay">
+                  <polyline points="20 6 9 17 4 12"/>
+                </svg>
+              </div>
+            </div>
+            <h1 className="font-cormorant font-semibold text-4xl text-ink mb-4">Payment Successful!</h1>
+            <p className="font-dm text-sm text-ink-light leading-relaxed mb-6">
+              Thank you{receipt.fullName ? `, ${receipt.fullName.split(' ')[0]}` : ''}. We&apos;ve received your payment and emailed you a receipt. We&apos;ll be in touch within 24 hours to confirm your order and shipping details.
+            </p>
+          </div>
+          <div className="bg-sand px-6 py-6 mb-8">
+            <p className="font-dm text-xs text-ink-light uppercase tracking-widest mb-1">Receipt · Order Reference</p>
+            <p className="font-cormorant font-semibold text-2xl text-ink break-all">{receipt.reference}</p>
+            {receipt.paidAt && (
+              <p className="font-dm text-xs text-ink-light mt-1">
+                Paid {new Date(receipt.paidAt).toLocaleString('en-ZA', { timeZone: 'Africa/Johannesburg' })}
+              </p>
+            )}
+            {receipt.order && (
+              <div className="mt-5 border-t border-sand-dark pt-4 space-y-3">
+                {receipt.order.lines.map((l, i) => (
+                  <div key={i} className="flex justify-between gap-4">
+                    <div>
+                      <p className="font-dm text-sm text-ink">{l.name} × {l.quantity}</p>
+                      <p className="font-dm text-xs text-ink-light">{describeLine(l)}</p>
+                    </div>
+                    <p className="font-dm text-sm text-ink flex-shrink-0">{formatPrice(l.unitPrice * l.quantity)}</p>
+                  </div>
+                ))}
+                <div className="flex justify-between border-t border-sand-dark pt-3">
+                  <span className="font-dm text-sm text-ink-mid">Delivery</span>
+                  <span className="font-dm text-sm text-ink">{formatPrice(receipt.order.delivery)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="font-cormorant font-semibold text-lg text-ink">Total paid</span>
+                  <span className="font-cormorant font-semibold text-lg text-ink">{formatPrice(receipt.order.total)}</span>
+                </div>
+              </div>
+            )}
+          </div>
+          <div className="flex flex-col sm:flex-row gap-3 justify-center print:hidden">
+            <button onClick={() => window.print()} className="font-dm text-sm border border-clay text-clay hover:bg-clay hover:text-cream px-8 py-3.5 transition-all duration-300">
+              Print / Save Receipt
+            </button>
+            <Link href="/shop" className="text-center font-dm text-sm bg-clay hover:bg-clay-dark text-cream px-8 py-3.5 transition-all duration-300">
+              Continue Shopping
+            </Link>
+          </div>
         </div>
       </div>
     )
