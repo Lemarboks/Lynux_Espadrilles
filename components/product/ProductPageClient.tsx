@@ -186,7 +186,7 @@ export default function ProductPageClient({ slug }: { slug: string }) {
         style={{
           position: 'fixed', top: 0, left: 0, right: 0, height: 64,
           background: 'white',
-          borderBottom: '1px solid #EAE3D2',
+          borderBottom: '1px solid #E8D4C7',
           boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
           zIndex: 40,
           display: 'flex', alignItems: 'center',
@@ -300,7 +300,7 @@ export default function ProductPageClient({ slug }: { slug: string }) {
                     flexShrink: 0,
                     width: 44, height: 44, borderRadius: '50%',
                     background: 'white',
-                    border: '1px solid #EAE3D2',
+                    border: '1px solid #E8D4C7',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                     cursor: 'pointer',
                     transform: `scale(${heartScale})`,
@@ -399,7 +399,7 @@ export default function ProductPageClient({ slug }: { slug: string }) {
                 <div className="mb-6">
                   <p className="font-dm text-xs uppercase tracking-[0.15em] text-ink font-medium mb-3">
                     {selectedColour
-                      ? <>Select Colour — <span style={{ color: '#C8A97E' }}>{selectedColour}</span></>
+                      ? <>Select Colour — <span style={{ color: '#C49B78' }}>{selectedColour}</span></>
                       : 'Select Colour'
                     }
                   </p>
@@ -412,7 +412,7 @@ export default function ProductPageClient({ slug }: { slug: string }) {
                           {activeTooltip === colour.name && (
                             <div
                               className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 whitespace-nowrap px-2 py-0.5 rounded-full text-[11px] font-dm text-cream pointer-events-none z-10"
-                              style={{ background: '#1C1A17' }}
+                              style={{ background: '#1D1B19' }}
                             >
                               {colour.name}
                             </div>
@@ -437,7 +437,7 @@ export default function ProductPageClient({ slug }: { slug: string }) {
                                 ? colour.hex
                                 : 'conic-gradient(#FF6B6B, #FFD93D, #6BCB77, #4D96FF, #C77DFF, #FF6B6B)',
                               border: isLight ? '1px solid #E0D8CC' : 'none',
-                              outline: isSelected ? '3px solid #C8A97E' : 'none',
+                              outline: isSelected ? '3px solid #C49B78' : 'none',
                               outlineOffset: '3px',
                               transform: isSelected ? 'scale(1.15)' : 'scale(1)',
                               transition: 'all 200ms ease',

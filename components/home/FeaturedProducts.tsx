@@ -79,7 +79,7 @@ export default function FeaturedProducts() {
           style={{
             position: 'absolute', left: 12, top: '45%', transform: 'translateY(-50%)',
             width: 48, height: 48, borderRadius: '50%',
-            background: '#C8A97E',
+            background: '#C49B78',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             zIndex: 10, border: 'none', cursor: canScrollLeft ? 'pointer' : 'default',
             opacity: canScrollLeft ? 1 : 0.3,
@@ -99,7 +99,7 @@ export default function FeaturedProducts() {
           style={{
             position: 'absolute', right: 12, top: '45%', transform: 'translateY(-50%)',
             width: 48, height: 48, borderRadius: '50%',
-            background: '#C8A97E',
+            background: '#C49B78',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             zIndex: 10, border: 'none', cursor: canScrollRight ? 'pointer' : 'default',
             opacity: canScrollRight ? 1 : 0.3,
@@ -129,7 +129,7 @@ export default function FeaturedProducts() {
             cursor: isDragging ? 'grabbing' : 'grab',
             userSelect: 'none',
             scrollbarWidth: 'thin',
-            scrollbarColor: '#C8A97E #F5F0E8',
+            scrollbarColor: '#C49B78 #F4EBE5',
           }}
           className="featured-scroll"
         >
@@ -156,8 +156,8 @@ export default function FeaturedProducts() {
 
       <style>{`
         .featured-scroll::-webkit-scrollbar { height: 4px; }
-        .featured-scroll::-webkit-scrollbar-track { background: #F5F0E8; }
-        .featured-scroll::-webkit-scrollbar-thumb { background: #C8A97E; border-radius: 2px; }
+        .featured-scroll::-webkit-scrollbar-track { background: #F4EBE5; }
+        .featured-scroll::-webkit-scrollbar-thumb { background: #C49B78; border-radius: 2px; }
       `}</style>
     </section>
   )

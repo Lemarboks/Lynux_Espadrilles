@@ -16,7 +16,7 @@ export default function Toast({ message, visible }: ToastProps) {
         bottom: 96, // above WhatsApp button (bottom-6 = 24px + 56px button = 80px, add 16px gap)
         left: '50%',
         transform: `translateX(-50%) translateY(${visible ? '0' : '12px'})`,
-        background: '#C8A97E',
+        background: '#C49B78',
         color: 'white',
         padding: '10px 20px',
         borderRadius: 8,

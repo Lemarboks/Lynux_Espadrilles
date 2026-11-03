@@ -42,11 +42,11 @@ function AnimatedCounter({ value, suffix, delay, label }: { value: number; suffi
     <div ref={ref} className="flex flex-col items-center text-center px-6 py-2">
       <span
         className="font-cormorant font-semibold leading-none mb-3"
-        style={{ fontSize: 'clamp(40px, 5vw, 56px)', color: '#C8A97E' }}
+        style={{ fontSize: 'clamp(40px, 5vw, 56px)', color: '#C49B78' }}
       >
         {count}{suffix}
       </span>
-      <span className="font-dm text-sm uppercase tracking-[0.15em]" style={{ color: '#8A847C' }}>
+      <span className="font-dm text-sm uppercase tracking-[0.15em]" style={{ color: '#71655C' }}>
         {label}
       </span>
     </div>
@@ -55,7 +55,7 @@ function AnimatedCounter({ value, suffix, delay, label }: { value: number; suffi
 
 export default function StatsStrip() {
   return (
-    <section style={{ background: '#1C1A17' }} className="py-16">
+    <section style={{ background: '#1D1B19' }} className="py-16">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-0">
           {stats.map(({ value, suffix, label }, i) => (

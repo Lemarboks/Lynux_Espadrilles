@@ -19,7 +19,7 @@ export default function WishlistPage() {
 
         {wishlistCount === 0 ? (
           <div className="flex flex-col items-center justify-center py-24 text-center">
-            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#C8A97E" strokeWidth="1.2" className="mb-6">
+            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#C49B78" strokeWidth="1.2" className="mb-6">
               <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
             </svg>
             <h2 className="font-cormorant font-semibold text-3xl text-ink mb-3">Your wishlist is empty</h2>

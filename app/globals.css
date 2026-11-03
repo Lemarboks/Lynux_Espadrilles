@@ -4,18 +4,18 @@
   --font-cormorant: "Cormorant Garamond", serif;
   --font-dm: "DM Sans", sans-serif;
 
-  --color-sand: #F5F0E8;
-  --color-sand-dark: #EAE3D2;
-  --color-clay: #C8A97E;
-  --color-clay-dark: #9A7A55;
-  --color-ink: #1C1A17;
-  --color-ink-mid: #4A4540;
-  --color-ink-light: #8A847C;
-  --color-cream: #FDFCF9;
+  --color-sand: #F4EBE5;
+  --color-sand-dark: #E8D4C7;
+  --color-clay: #C49B78;
+  --color-clay-dark: #9D7657;
+  --color-ink: #1D1B19;
+  --color-ink-mid: #60594F;
+  --color-ink-light: #71655C;
+  --color-cream: #FAF4EF;
   --color-accent: #B85C38;
 
   /* warm-white alias used in some components */
-  --color-warm-white: #FDFCF9;
+  --color-warm-white: #FAF4EF;
 }
 
 @layer base {

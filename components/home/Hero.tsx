@@ -20,7 +20,7 @@ const heroSlides = [
 
 const INTERVAL = 4000
 const FADE_DURATION = 800
-const HERO_VIDEO = '/videos/lynnux-hero.mp4'
+const HERO_BACKGROUND = '/images/1000038200.jpg'
 
 export default function Hero() {
   const [visible, setVisible] = useState(false)
@@ -91,23 +91,21 @@ export default function Hero() {
         display: 'flex',
         minHeight: '100vh',
         overflow: 'hidden',
-        background: '#FDFCF9',
+        background: '#FAF4EF',
         position: 'relative',
         isolation: 'isolate',
       }}
     >
-      <div className="hero-video-layer" aria-hidden>
-        <video
-          className="hero-video"
-          autoPlay
-          muted
-          loop
-          playsInline
-          preload="metadata"
-        >
-          <source src={img(HERO_VIDEO)} type="video/mp4" />
-        </video>
-        <div className="hero-video-wash" />
+      <div className="hero-background-layer" aria-hidden>
+        <Image
+          src={img(HERO_BACKGROUND)}
+          alt=""
+          fill
+          priority
+          sizes="100vw"
+          className="hero-background"
+        />
+        <div className="hero-background-wash" />
       </div>
 
       {/* ── Left panel ── */}
@@ -129,7 +127,7 @@ export default function Hero() {
             width: '100%',
           }}
         >
-          <p className="font-dm text-xs tracking-[0.25em] uppercase text-clay font-medium mb-6">
+          <p className="font-dm text-xs tracking-[0.25em] uppercase font-medium mb-6" style={{ color: '#553D2E' }}>
             Handcrafted in South Africa
           </p>
 
@@ -159,7 +157,7 @@ export default function Hero() {
                   }}
                 >
                   {slide.tagline}<br />
-                  <span className="italic" style={{ color: '#C8A97E' }}>{slide.taglineItalic}</span><br />
+                  <span className="italic" style={{ color: '#9D7657' }}>{slide.taglineItalic}</span><br />
                   {slide.taglineEnd}
                 </h1>
               )
@@ -243,7 +241,7 @@ export default function Hero() {
                     width: i === currentIndex ? 9 : 6,
                     height: i === currentIndex ? 9 : 6,
                     borderRadius: '50%',
-                    background: i === currentIndex ? '#C8A97E' : 'rgba(28,26,23,0.26)',
+                    background: i === currentIndex ? '#C49B78' : 'rgba(29,27,25,0.26)',
                     border: 'none', cursor: 'pointer', padding: 0,
                     transition: 'all 300ms ease',
                   }}
@@ -258,7 +256,7 @@ export default function Hero() {
           style={{
             position: 'absolute', left: 20, top: '50%', transform: 'translateY(-50%)',
             width: 36, height: 36, borderRadius: '50%',
-            background: 'rgba(28,26,23,0.45)', backdropFilter: 'blur(4px)',
+            background: 'rgba(29,27,25,0.45)', backdropFilter: 'blur(4px)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             opacity: arrowsVisible ? 1 : 0, transition: 'opacity 250ms ease',
             zIndex: 10, border: 'none', cursor: 'pointer',
@@ -271,7 +269,7 @@ export default function Hero() {
           style={{
             position: 'absolute', right: 20, top: '50%', transform: 'translateY(-50%)',
             width: 36, height: 36, borderRadius: '50%',
-            background: 'rgba(28,26,23,0.45)', backdropFilter: 'blur(4px)',
+            background: 'rgba(29,27,25,0.45)', backdropFilter: 'blur(4px)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             opacity: arrowsVisible ? 1 : 0, transition: 'opacity 250ms ease',
             zIndex: 10, border: 'none', cursor: 'pointer',
@@ -283,22 +281,24 @@ export default function Hero() {
 
       {/* Mobile / responsive styles */}
       <style>{`
-        .hero-video-layer {
+        .hero-background-layer {
           position: absolute;
           inset: 0;
           z-index: 0;
           overflow: hidden;
-          background: #FDFCF9;
+          background: #B99277;
         }
-        .hero-video {
-          width: 100%;
-          height: 100%;
+        .hero-background {
           object-fit: cover;
-          object-position: center;
-          opacity: 0.82;
+          object-position: center 53%;
         }
-        .hero-video-wash {
-          display: none;
+        /* Warm wash from the left so the headline stays readable over the photo */
+        .hero-background-wash {
+          position: absolute;
+          inset: 0;
+          background:
+            linear-gradient(90deg, rgba(226,194,171,0.82) 0%, rgba(226,194,171,0.6) 38%, rgba(226,194,171,0.05) 70%),
+            linear-gradient(0deg, rgba(39,29,23,0.12), transparent 35%);
         }
         .hero-product-frame {
           position: absolute;
@@ -311,8 +311,8 @@ export default function Hero() {
           overflow: hidden;
           border-radius: 8px;
           border: 1px solid rgba(255,255,255,0.34);
-          background: rgba(253,252,249,0.18);
-          box-shadow: 0 18px 42px rgba(28,26,23,0.16);
+          background: rgba(250,244,239,0.18);
+          box-shadow: 0 18px 42px rgba(29,27,25,0.16);
         }
         .hero-product-image {
           position: absolute;
@@ -331,7 +331,7 @@ export default function Hero() {
           padding: 9px 10px;
           border-radius: 7px;
           background: rgba(255,255,255,0.76);
-          border: 1px solid rgba(200,169,126,0.18);
+          border: 1px solid rgba(196,155,120,0.18);
         }
         .hero-cycle-dots {
           display: flex;
@@ -418,8 +418,10 @@ export default function Hero() {
             max-width: 48px;
             gap: 3px;
           }
-          .hero-video {
-            opacity: 0.72;
+          .hero-background-wash {
+            background:
+              linear-gradient(90deg, rgba(226,194,171,0.82) 0%, rgba(226,194,171,0.6) 48%, rgba(226,194,171,0.1) 85%),
+              linear-gradient(0deg, rgba(39,29,23,0.12), transparent 35%);
           }
         }
         @media (max-width: 380px) {
@@ -444,7 +446,6 @@ export default function Hero() {
         }
         @media (prefers-reduced-motion: reduce) {
           * { transition-duration: 0ms !important; animation-duration: 0ms !important; }
-          .hero-video { display: none; }
         }
       `}</style>
     </section>
