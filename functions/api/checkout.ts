@@ -63,6 +63,6 @@ export async function onRequestPost({ request, env }: { request: Request; env: E
     return json({ accessCode: tx.access_code, authorizationUrl: tx.authorization_url, reference: tx.reference })
   } catch (err) {
     console.error(err)
-    return json({ error: 'We couldn’t start the payment. Please try again.' }, 502)
+    return json({ error: 'We couldn’t start the payment. Please try again.' }, 500)
   }
 }

@@ -1,4 +1,4 @@
-import { Env, json, verifyTransaction } from '../../lib/payments'
+import { Env, json, PaystackError, verifyTransaction } from '../../lib/payments'
 
 // GET /api/verify?reference=LYN-...
 // Asks Paystack whether the payment really succeeded for the right amount, so the
@@ -19,7 +19,10 @@ export async function onRequestGet({ request, env }: { request: Request; env: En
       order: p.status === 'paid' ? p.order : null,
     })
   } catch (err) {
+    // Paystack answers 4xx for references it has never seen
+    if (err instanceof PaystackError && err.httpStatus >= 400 && err.httpStatus < 500) return json({ status: 'failed' }, 404)
     console.error(err)
-    return json({ status: 'pending' }, 502)
+    // Not 502: Cloudflare swaps 502 bodies for its own error page
+    return json({ status: 'pending' }, 503)
   }
 }

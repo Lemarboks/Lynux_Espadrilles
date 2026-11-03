@@ -45,6 +45,12 @@ export const json = (body: unknown, status = 200) =>
     headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' },
   })
 
+export class PaystackError extends Error {
+  constructor(message: string, readonly httpStatus: number) {
+    super(message)
+  }
+}
+
 export async function paystack<T>(env: Env, path: string, init: RequestInit = {}): Promise<T> {
   const res = await fetch(`https://api.paystack.co${path}`, {
     ...init,
@@ -55,7 +61,7 @@ export async function paystack<T>(env: Env, path: string, init: RequestInit = {}
     },
   })
   const body = (await res.json()) as { status: boolean; message: string; data: T }
-  if (!res.ok || !body.status) throw new Error(`Paystack ${path} failed: ${body.message}`)
+  if (!res.ok || !body.status) throw new PaystackError(`Paystack ${path} failed: ${body.message}`, res.status)
   return body.data
 }
 
