@@ -63,12 +63,12 @@ function OrderCard({ order, onSaved }: { order: OrderRecord; onSaved: (o: OrderR
     <article className="bg-cream border border-sand-dark p-5 lg:p-6">
       <div className="flex flex-wrap items-start justify-between gap-3 mb-4">
         <div>
-          <p className="font-cormorant font-semibold text-2xl text-ink leading-tight">{order.fullName || 'Unknown customer'}</p>
+          <p className="font-cormorant font-normal text-2xl text-ink leading-tight">{order.fullName || 'Unknown customer'}</p>
           <p className="font-dm text-xs text-ink-light mt-1">{formatDate(order.createdAt)} · {order.reference}</p>
         </div>
         <div className="flex items-center gap-2">
           <span className={`font-dm text-[11px] uppercase tracking-widest px-2.5 py-1 ${statusStyle[order.status]}`}>{order.status}</span>
-          <span className="font-cormorant font-semibold text-xl text-ink">{formatPrice(order.amountPaid)}</span>
+          <span className="font-cormorant font-normal text-xl text-ink">{formatPrice(order.amountPaid)}</span>
         </div>
       </div>
 
@@ -193,11 +193,11 @@ export default function AdminPage() {
   const visible = (orders ?? []).filter(o => filter === 'all' || o.status === filter)
 
   return (
-    <div className="pt-20 lg:pt-24 min-h-screen bg-sand">
+    <div className="min-h-screen bg-sand">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 lg:py-14">
         <div className="flex flex-wrap items-end justify-between gap-4 mb-8">
           <div>
-            <h1 className="font-cormorant font-semibold text-4xl lg:text-5xl text-ink">Orders</h1>
+            <h1 className="font-cormorant font-normal text-4xl lg:text-5xl text-ink">Orders</h1>
             {admin && <p className="font-dm text-xs text-ink-light mt-1">Signed in as {admin}</p>}
           </div>
           <div className="flex flex-wrap gap-2">
@@ -213,7 +213,7 @@ export default function AdminPage() {
 
         {error ? (
           <div className="bg-cream border border-sand-dark p-8 text-center">
-            <p className="font-cormorant font-semibold text-2xl text-ink mb-2">You can’t view orders right now</p>
+            <p className="font-cormorant font-normal text-2xl text-ink mb-2">You can’t view orders right now</p>
             <p className="font-dm text-sm text-ink-light">{error}</p>
           </div>
         ) : orders === null ? (

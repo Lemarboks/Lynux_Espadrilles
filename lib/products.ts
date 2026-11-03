@@ -35,7 +35,7 @@ export const products: Product[] = [
       "/images/ariana-new-2.jpg",
       "/images/ariana-new-3.jpg"
     ],
-    category: "Lynux",
+    category: "Sandals",
     featured: false,
     rating: null,
     reviewCount: 0
@@ -64,7 +64,7 @@ export const products: Product[] = [
       "/images/carnero-slipper-4.jpg",
       "/images/carnero-slipper-5.jpg"
     ],
-    category: "Lynux",
+    category: "Slippers",
     featured: false,
     rating: null,
     reviewCount: 0
@@ -88,7 +88,7 @@ export const products: Product[] = [
       "/images/florencia-cerrada.jpg",
       "/images/florencia-cerrada-2.jpg"
     ],
-    category: "Lynux",
+    category: "Leather",
     featured: true,
     rating: null,
     reviewCount: 0
@@ -111,7 +111,7 @@ export const products: Product[] = [
     images: [
       "/images/lucia-wedge.png",
     ],
-    category: "Lynux",
+    category: "Sandals",
     featured: true,
     rating: null,
     reviewCount: 0
@@ -132,7 +132,7 @@ export const products: Product[] = [
     ],
     image: "/images/renata.jpg",
     images: ["/images/renata.jpg"],
-    category: "Lynux",
+    category: "Sandals",
     featured: false,
     rating: null,
     reviewCount: 0
@@ -167,7 +167,7 @@ export const products: Product[] = [
       "/images/the-bella-new-1.jpg",
       "/images/the-bella-new-2.jpg"
     ],
-    category: "Lynux",
+    category: "Sandals",
     featured: false,
     rating: null,
     reviewCount: 0
@@ -202,7 +202,7 @@ export const products: Product[] = [
       "/images/the-lynux-7.jpg",
       "/images/the-lynux-8.jpg"
     ],
-    category: "Lynux",
+    category: "Sandals",
     featured: true,
     rating: 5.0,
     reviewCount: 1,
@@ -251,7 +251,7 @@ export const products: Product[] = [
       "/images/the-mule-new-3.jpg",
       "/images/the-mule-5.webp"
     ],
-    category: "Lynux",
+    category: "Leather",
     featured: true,
     rating: null,
     reviewCount: 0
@@ -278,7 +278,7 @@ export const products: Product[] = [
       "/images/the-tina-3.jpg",
       "/images/the-tina-4.jpg"
     ],
-    category: "Lynux",
+    category: "Sandals",
     featured: false,
     rating: null,
     reviewCount: 0
@@ -317,7 +317,7 @@ export const products: Product[] = [
       "/images/valeria-new-2.jpg",
       "/images/valeria-new-3.jpg"
     ],
-    category: "Lynux",
+    category: "Sandals",
     featured: false,
     rating: null,
     reviewCount: 0
@@ -338,7 +338,7 @@ export const products: Product[] = [
     ],
     image: "/images/ximera-leather.jpg",
     images: ["/images/ximera-leather.jpg"],
-    category: "Lynux",
+    category: "Leather",
     featured: false,
     rating: null,
     reviewCount: 0

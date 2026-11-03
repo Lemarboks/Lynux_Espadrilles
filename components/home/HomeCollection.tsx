@@ -13,7 +13,7 @@ export default function HomeCollection() {
           ))}
         </div>
         <div className="flex justify-center home-collection-more">
-          <Link href="/shop" className="font-dm home-button home-button-outline">
+          <Link href="/shop" className="font-dm lx-button lx-button-outline">
             View all styles <span aria-hidden>→</span>
           </Link>
         </div>
@@ -24,7 +24,7 @@ export default function HomeCollection() {
         .home-collection-title { margin: 0 0 21px; font-size: 39px; font-weight: 400; line-height: 1.08; }
         .home-collection-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 26px 15px; }
         .home-collection-more { margin-top: 20px; }
-        .home-collection-more .home-button { min-width: 130px; min-height: 34px; }
+        .home-collection-more .lx-button { min-width: 130px; min-height: 34px; }
         @media (max-width: 950px) {
           .home-collection-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
         }

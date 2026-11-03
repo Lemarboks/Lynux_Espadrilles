@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { useRouter } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { useCart } from '@/app/context/CartContext'
 import { useWishlist } from '@/app/context/WishlistContext'
 import { getAllProducts } from '@/lib/products'
@@ -13,8 +13,24 @@ import { Product } from '@/types'
 const formatPrice = (price: number): string =>
   'R' + price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 
+const navLinks = [
+  { label: 'Home', href: '/' },
+  { label: 'Shop', href: '/shop' },
+  { label: 'Our story', href: '/about' },
+  { label: 'Contact', href: '/contact' },
+]
+
+const SearchIcon = () => (
+  <svg viewBox="0 0 24 24" aria-hidden><circle cx="11" cy="11" r="7" /><path d="m20 20-3.6-3.6" /></svg>
+)
+const HeartIcon = () => (
+  <svg viewBox="0 0 24 24" aria-hidden><path d="M12 20s-7.5-4.6-7.5-10.2A4.3 4.3 0 0 1 12 7.3a4.3 4.3 0 0 1 7.5 2.5C19.5 15.4 12 20 12 20z" /></svg>
+)
+const BagIcon = () => (
+  <svg viewBox="0 0 24 24" aria-hidden><path d="M6 8h12l-1 12H7L6 8z" /><path d="M9 8V6.5a3 3 0 0 1 6 0V8" /></svg>
+)
+
 export default function Navbar() {
-  const [scrolled, setScrolled] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
   const [searchOpen, setSearchOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
@@ -22,14 +38,9 @@ export default function Navbar() {
   const { cartCount } = useCart()
   const { wishlistCount } = useWishlist()
   const router = useRouter()
+  const pathname = usePathname()
   const searchRef = useRef<HTMLDivElement>(null)
   const searchInputRef = useRef<HTMLInputElement>(null)
-
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 10)
-    window.addEventListener('scroll', onScroll)
-    return () => window.removeEventListener('scroll', onScroll)
-  }, [])
 
   useEffect(() => {
     if (searchOpen && searchInputRef.current) searchInputRef.current.focus()
@@ -42,7 +53,7 @@ export default function Navbar() {
       }
     }
     const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') { setSearchOpen(false); setSearchQuery(''); setSearchResults([]) }
+      if (e.key === 'Escape') { setSearchOpen(false); setSearchQuery(''); setSearchResults([]); setMobileOpen(false) }
     }
     document.addEventListener('mousedown', handleClickOutside)
     document.addEventListener('keydown', handleEscape)
@@ -66,187 +77,182 @@ export default function Navbar() {
     router.push(`/product/${slug}`)
   }
 
-  const navLinks = [
-    { label: 'Home', href: '/' },
-    { label: 'Shop', href: '/shop' },
-    { label: 'About', href: '/about' },
-  ]
+  const isActive = (href: string) => (href === '/' ? pathname === '/' : pathname.startsWith(href))
 
   return (
-    <>
-      <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? 'bg-cream shadow-sm' : 'bg-cream'}`}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16 lg:h-20">
-            {/* Logo */}
-            <Link href="/" className="flex-shrink-0">
-              <Image
-                src={img('/images/logo-black.png')}
-                alt="Lynux Espadrilles"
-                width={110}
-                height={70}
-                className="h-14 w-auto"
-                priority
-              />
-            </Link>
+    <div className="lx-header-wrap">
+      <div className="lx-announcement font-dm">
+        <span>Handcrafted to order</span><span aria-hidden>·</span><span>R65 flat-rate delivery across South Africa</span>
+      </div>
 
-            {/* Desktop Nav */}
-            <nav className="hidden md:flex items-center gap-8">
-              {navLinks.map(({ label, href }) => (
-                <Link
-                  key={label}
-                  href={href}
-                  className="font-dm text-sm text-ink-mid hover:text-ink transition-colors duration-200 tracking-wide"
-                >
-                  {label}
-                </Link>
-              ))}
-            </nav>
+      <header className="lx-header font-dm">
+        <button className="lx-icon-button lx-menu-button" onClick={() => setMobileOpen(true)} aria-label="Open menu">
+          <svg viewBox="0 0 24 24" aria-hidden><path d="M4 7h16M4 12h16M4 17h16" /></svg>
+        </button>
 
-            {/* Icons */}
-            <div className="flex items-center gap-4">
-              <button
-                onClick={() => setSearchOpen(v => !v)}
-                className="text-ink-mid hover:text-ink transition-colors duration-200"
-                aria-label="Search"
-              >
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                  <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
-                </svg>
-              </button>
+        {/* Original Lynux badge, in black */}
+        <Link href="/" className="lx-logo" aria-label="Lynux Espadrilles home">
+          <Image src={img('/images/logo-black.png')} alt="Lynux Espadrilles" width={110} height={78} priority />
+        </Link>
 
-              <Link href="/wishlist" className="hidden sm:block relative text-ink-mid hover:text-ink transition-colors duration-200" aria-label="Wishlist">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                  <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
-                </svg>
-                {wishlistCount > 0 && (
-                  <span className="absolute -top-2 -right-2 bg-clay text-cream text-[10px] font-dm font-semibold rounded-full w-4 h-4 flex items-center justify-center">
-                    {wishlistCount}
-                  </span>
-                )}
-              </Link>
+        <nav className="lx-nav" aria-label="Main">
+          {navLinks.map(({ label, href }) => (
+            <Link key={href} href={href} className={isActive(href) ? 'is-active' : undefined}>{label}</Link>
+          ))}
+        </nav>
 
-              <Link href="/cart" className="relative flex items-center gap-1.5 font-dm text-sm text-ink-mid hover:text-ink transition-colors duration-200 border border-sand-dark hover:border-clay px-3 py-1.5">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                  <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
-                  <line x1="3" y1="6" x2="21" y2="6"/>
-                  <path d="M16 10a4 4 0 0 1-8 0"/>
-                </svg>
-                <span>Go to Cart</span>
-                {cartCount > 0 && (
-                  <span className="bg-clay text-cream text-[10px] font-dm font-semibold rounded-full w-4 h-4 flex items-center justify-center">
-                    {cartCount}
-                  </span>
-                )}
-              </Link>
-
-              <button
-                className="md:hidden text-ink ml-1"
-                onClick={() => setMobileOpen(true)}
-                aria-label="Open menu"
-              >
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                  <line x1="3" y1="6" x2="21" y2="6"/>
-                  <line x1="3" y1="12" x2="21" y2="12"/>
-                  <line x1="3" y1="18" x2="21" y2="18"/>
-                </svg>
-              </button>
-            </div>
-          </div>
-
-          {/* Search dropdown */}
-          {searchOpen && (
-            <div ref={searchRef} className="border-t border-sand-dark pb-4">
-              <div className="relative py-4">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"
-                  className="absolute left-0 top-1/2 -translate-y-1/2 text-ink-light">
-                  <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
-                </svg>
-                <input
-                  ref={searchInputRef}
-                  type="text"
-                  value={searchQuery}
-                  onChange={e => handleSearch(e.target.value)}
-                  placeholder="Search styles..."
-                  className="w-full pl-7 font-dm text-sm text-ink bg-transparent focus:outline-none placeholder:text-ink-light"
-                />
-                <button
-                  onClick={() => { setSearchOpen(false); setSearchQuery(''); setSearchResults([]) }}
-                  className="absolute right-0 top-1/2 -translate-y-1/2 text-ink-light hover:text-ink transition-colors"
-                >
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                    <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-                  </svg>
-                </button>
-              </div>
-              {searchQuery.trim().length >= 2 && (
-                <div className="border-t border-sand">
-                  {searchResults.length > 0 ? searchResults.map(product => (
-                    <button
-                      key={product.id}
-                      onClick={() => handleResultClick(product.slug)}
-                      className="w-full flex items-center gap-4 py-3 hover:bg-sand transition-colors duration-150 text-left"
-                    >
-                      <div className="relative w-10 h-10 flex-shrink-0 bg-sand overflow-hidden">
-                        <Image src={img(product.image)} alt={product.name} fill className="object-cover" sizes="40px" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="font-cormorant font-semibold text-sm text-ink">{product.name}</p>
-                        <p className="font-dm text-xs text-ink-light">{formatPrice(product.price)}</p>
-                      </div>
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-ink-light flex-shrink-0">
-                        <path d="M5 12h14M12 5l7 7-7 7"/>
-                      </svg>
-                    </button>
-                  )) : (
-                    <p className="font-dm text-sm text-ink-light py-4">
-                      No styles found for &ldquo;{searchQuery}&rdquo;
-                    </p>
-                  )}
-                </div>
-              )}
-            </div>
-          )}
+        <div className="lx-actions">
+          <button className="lx-icon-button" onClick={() => setSearchOpen(v => !v)} aria-label="Search">
+            <SearchIcon />
+          </button>
+          <Link href="/wishlist" className="lx-liked" aria-label={`Liked items, ${wishlistCount}`}>
+            <HeartIcon />
+            {wishlistCount > 0 && <span className="lx-count lx-liked-count">{wishlistCount}</span>}
+          </Link>
+          <Link href="/cart" className="lx-bag" aria-label={`Go to cart, ${cartCount} ${cartCount === 1 ? 'item' : 'items'}`}>
+            <span className="lx-bag-icon"><BagIcon /></span>
+            <span className="lx-bag-label">Go to cart</span>
+            <span className="lx-count">{cartCount}</span>
+          </Link>
         </div>
       </header>
 
-      {/* Mobile Menu */}
-      {mobileOpen && (
-        <div className="fixed top-3 right-3 z-50 md:hidden">
-          <div className="w-52 bg-cream border border-sand-dark shadow-xl">
-            <div className="flex items-center justify-between px-4 h-12 border-b border-sand-dark">
-              <span className="font-cormorant font-semibold text-lg text-ink">Menu</span>
-              <button onClick={() => setMobileOpen(false)} className="text-ink-light hover:text-ink transition-colors">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                  <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+      {searchOpen && (
+        <div ref={searchRef} className="lx-search font-dm">
+          <div className="lx-container">
+            <div className="relative py-4">
+              <span className="absolute left-0 top-1/2 -translate-y-1/2 text-ink-light lx-search-icon"><SearchIcon /></span>
+              <input
+                ref={searchInputRef}
+                type="text"
+                value={searchQuery}
+                onChange={e => handleSearch(e.target.value)}
+                placeholder="Search styles..."
+                className="w-full pl-8 text-sm text-ink bg-transparent focus:outline-none placeholder:text-ink-light"
+              />
+              <button
+                onClick={() => { setSearchOpen(false); setSearchQuery(''); setSearchResults([]) }}
+                className="absolute right-0 top-1/2 -translate-y-1/2 text-ink-light hover:text-ink transition-colors"
+                aria-label="Close search"
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                  <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
                 </svg>
               </button>
             </div>
-            <nav className="flex flex-col px-4 py-4 gap-3">
-              {navLinks.map(({ label, href }) => (
-                <Link
-                  key={label}
-                  href={href}
-                  onClick={() => setMobileOpen(false)}
-                  className="font-cormorant font-semibold text-xl text-ink hover:text-clay transition-colors duration-200"
-                >
-                  {label}
-                </Link>
-              ))}
-            </nav>
-            <div className="px-4 pb-4 pt-3 border-t border-sand-dark">
-              <p className="font-dm text-xs text-ink-light mb-2">Follow us</p>
-              <a href="https://instagram.com/lynux_espadrille" target="_blank" rel="noopener noreferrer"
-                className="font-dm text-xs text-ink-mid hover:text-clay transition-colors flex items-center gap-2">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                  <rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/>
-                  <circle cx="17.5" cy="6.5" r="0.5" fill="currentColor"/>
-                </svg>
-                @lynux_espadrille
-              </a>
-            </div>
+            {searchQuery.trim().length >= 2 && (
+              <div className="border-t border-sand-dark pb-2">
+                {searchResults.length > 0 ? searchResults.map(product => (
+                  <button
+                    key={product.id}
+                    onClick={() => handleResultClick(product.slug)}
+                    className="w-full flex items-center gap-4 py-3 hover:bg-sand transition-colors duration-150 text-left"
+                  >
+                    <div className="relative w-10 h-10 flex-shrink-0 bg-sand overflow-hidden">
+                      <Image src={img(product.image)} alt={product.name} fill className="object-cover" sizes="40px" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs font-medium text-ink">{product.name}</p>
+                      <p className="text-xs text-ink-light">{formatPrice(product.price)}</p>
+                    </div>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-ink-light flex-shrink-0">
+                      <path d="M5 12h14M12 5l7 7-7 7" />
+                    </svg>
+                  </button>
+                )) : (
+                  <p className="text-sm text-ink-light py-4">No styles found for &ldquo;{searchQuery}&rdquo;</p>
+                )}
+              </div>
+            )}
           </div>
         </div>
       )}
-    </>
+
+      {mobileOpen && (
+        <div className="lx-drawer-backdrop" onClick={() => setMobileOpen(false)}>
+          <nav className="lx-drawer font-dm" aria-label="Mobile" onClick={e => e.stopPropagation()}>
+            <button className="lx-icon-button lx-drawer-close" onClick={() => setMobileOpen(false)} aria-label="Close menu">
+              <svg viewBox="0 0 24 24" aria-hidden><path d="M6 6l12 12M18 6 6 18" /></svg>
+            </button>
+            {navLinks.map(({ label, href }) => (
+              <Link key={href} href={href} onClick={() => setMobileOpen(false)} className="font-cormorant">{label}</Link>
+            ))}
+            <Link href="/wishlist" onClick={() => setMobileOpen(false)} className="font-cormorant">Liked items</Link>
+            <a href="https://instagram.com/lynux_espadrille" target="_blank" rel="noopener noreferrer" className="lx-drawer-social">@lynux_espadrille</a>
+          </nav>
+        </div>
+      )}
+
+      <style>{`
+        .lx-header-wrap { position: sticky; top: 0; z-index: 50; }
+        .lx-announcement {
+          display: flex; justify-content: center; align-items: center; gap: 9px;
+          min-height: 28px; padding: 4px 16px;
+          background: #211E1B; color: #F3EEE5;
+          font-size: 9px; font-weight: 600; letter-spacing: 0.08em;
+        }
+        .lx-header {
+          display: grid; grid-template-columns: 1fr 1fr 1fr; align-items: center;
+          min-height: 67px; padding: 0 clamp(24px, 7vw, 106px);
+          border-bottom: 1px solid rgba(41,36,30,0.1);
+          background: rgba(250,244,239,0.97); color: var(--color-ink);
+        }
+        .lx-logo { justify-self: start; display: block; }
+        .lx-logo img { height: 52px; width: auto; }
+        .lx-nav { display: flex; justify-content: center; gap: 30px; }
+        .lx-nav a { font-size: 10px; letter-spacing: 0.02em; transition: color 0.2s ease; }
+        .lx-nav a:hover, .lx-nav a.is-active { color: var(--color-clay-dark); }
+        .lx-actions { display: flex; justify-content: flex-end; align-items: center; gap: 18px; }
+        .lx-icon-button { display: grid; place-items: center; width: 40px; height: 40px; padding: 0; border: 0; background: transparent; cursor: pointer; color: inherit; }
+        .lx-icon-button svg, .lx-liked svg, .lx-bag-icon svg, .lx-search-icon svg {
+          width: 21px; height: 21px; fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round;
+        }
+        .lx-search-icon svg { width: 18px; height: 18px; }
+        .lx-menu-button { display: none; }
+        .lx-liked { position: relative; display: grid; place-items: center; width: 32px; height: 32px; }
+        .lx-count {
+          display: grid; place-items: center; width: 17px; height: 17px; border-radius: 50%;
+          background: var(--color-ink); color: var(--color-cream); font-size: 9px; letter-spacing: 0;
+        }
+        .lx-liked-count { position: absolute; top: -1px; right: -5px; width: 15px; height: 15px; font-size: 8px; }
+        .lx-bag {
+          display: flex; align-items: center; gap: 7px; padding: 9px 14px;
+          border: 1px solid var(--color-ink);
+          font-size: 10px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; white-space: nowrap;
+          transition: background 0.2s ease, color 0.2s ease;
+        }
+        .lx-bag:hover { background: var(--color-ink); color: var(--color-cream); }
+        .lx-bag:hover .lx-count { background: var(--color-cream); color: var(--color-ink); }
+        .lx-bag-icon { display: none; }
+        .lx-search { border-bottom: 1px solid rgba(41,36,30,0.1); background: rgba(250,244,239,0.98); }
+        .lx-drawer-backdrop { position: fixed; inset: 0; z-index: 60; background: rgba(29,27,25,0.4); }
+        .lx-drawer {
+          position: absolute; top: 0; left: 0; bottom: 0; width: min(300px, 82vw);
+          display: flex; flex-direction: column; gap: 18px; padding: 70px 28px 28px;
+          background: var(--color-cream);
+        }
+        .lx-drawer a { font-size: 26px; }
+        .lx-drawer .lx-drawer-social { margin-top: auto; font-size: 12px; color: var(--color-ink-light); }
+        .lx-drawer-close { position: absolute; top: 14px; right: 14px; }
+        @media (max-width: 950px) {
+          .lx-header { padding-inline: 4vw; }
+          .lx-nav { gap: 20px; }
+        }
+        @media (max-width: 767px) {
+          .lx-header { grid-template-columns: 44px 1fr auto; min-height: 62px; padding-inline: 12px; }
+          .lx-menu-button { display: grid; }
+          .lx-logo { justify-self: center; }
+          .lx-logo img { height: 46px; }
+          .lx-nav { display: none; }
+          .lx-actions { gap: 6px; }
+          .lx-liked { display: none; }
+          .lx-bag { position: relative; padding: 0; border: 0; width: 40px; height: 40px; justify-content: center; }
+          .lx-bag:hover { background: transparent; color: inherit; }
+          .lx-bag-icon { display: grid; }
+          .lx-bag-label { display: none; }
+          .lx-bag .lx-count { position: absolute; top: 3px; right: 1px; width: 15px; height: 15px; font-size: 8px; }
+        }
+      `}</style>
+    </div>
   )
 }

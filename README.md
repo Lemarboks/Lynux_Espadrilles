@@ -1,6 +1,6 @@
 # Lynux Espadrilles
 
-Static Next.js storefront on Cloudflare Pages, with a few small server functions in `functions/api/` for payments. Payments go through **Paystack** (popup checkout, ZAR). Orders can also be placed over WhatsApp from the cart page.
+Static Next.js storefront on Cloudflare Pages, with a few small server functions in `functions/api/` for payments. Payments go through **Paystack** (popup checkout, ZAR).
 
 ## How checkout works
 

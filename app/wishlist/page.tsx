@@ -8,49 +8,37 @@ export default function WishlistPage() {
   const { wishlistItems, wishlistCount } = useWishlist()
 
   return (
-    <div className="pt-20 lg:pt-24 min-h-screen bg-cream">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <div className="mb-10">
-          <h1 className="font-cormorant font-semibold text-4xl lg:text-5xl text-ink mb-2">My Wishlist</h1>
-          <p className="font-dm text-sm text-ink-light">
-            {wishlistCount} saved style{wishlistCount !== 1 ? 's' : ''}
-          </p>
-        </div>
+    <section className="lx-liked-page lx-container font-dm">
+      <p className="lx-eyebrow">Your favourites</p>
+      <h1 className="lx-page-title">
+        Liked items
+        {wishlistCount > 0 && <span className="lx-liked-total"> ({wishlistCount} {wishlistCount === 1 ? 'style' : 'styles'})</span>}
+      </h1>
 
-        {wishlistCount === 0 ? (
-          <div className="flex flex-col items-center justify-center py-24 text-center">
-            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#C49B78" strokeWidth="1.2" className="mb-6">
-              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
-            </svg>
-            <h2 className="font-cormorant font-semibold text-3xl text-ink mb-3">Your wishlist is empty</h2>
-            <p className="font-dm text-sm text-ink-light mb-8 max-w-sm">
-              Save your favourite styles to find them later.
-            </p>
-            <Link
-              href="/shop"
-              className="inline-block font-dm text-sm font-medium bg-clay hover:bg-clay-dark text-cream px-10 py-3.5 transition-all duration-300 tracking-wide"
-            >
-              Browse Collection
-            </Link>
-          </div>
-        ) : (
-          <>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8 mb-12">
-              {wishlistItems.map(product => (
-                <ProductCard key={product.id} product={product} />
-              ))}
-            </div>
-            <div className="text-center">
-              <Link
-                href="/shop"
-                className="inline-block font-dm text-sm font-medium border border-ink text-ink hover:bg-ink hover:text-cream px-10 py-3.5 transition-all duration-300 tracking-wide"
-              >
-                Continue Shopping
-              </Link>
-            </div>
-          </>
-        )}
-      </div>
-    </div>
+      {wishlistCount === 0 ? (
+        <div className="lx-liked-empty">
+          <p>You haven&rsquo;t liked any styles yet. Tap the heart on a style to save it here.</p>
+          <Link href="/shop" className="lx-button">Discover the collection</Link>
+        </div>
+      ) : (
+        <div className="lx-liked-grid">
+          {wishlistItems.map(product => <ProductCard key={product.id} product={product} />)}
+        </div>
+      )}
+
+      <style>{`
+        .lx-liked-page { min-height: 55vh; padding: 72px 0 100px; }
+        .lx-liked-page .lx-page-title { font-size: clamp(42px, 5vw, 62px); }
+        .lx-liked-total { color: var(--color-ink-light); font-family: var(--font-dm), sans-serif; font-size: 11px; }
+        .lx-liked-empty { display: flex; flex-direction: column; align-items: flex-start; gap: 20px; padding: 40px 0; color: var(--color-ink-light); font-size: 13px; }
+        .lx-liked-empty p { margin: 0; }
+        .lx-liked-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 26px 15px; margin-top: 37px; }
+        @media (max-width: 950px) { .lx-liked-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+        @media (max-width: 680px) {
+          .lx-liked-page { padding: 40px 0 70px; }
+          .lx-liked-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 22px 11px; }
+        }
+      `}</style>
+    </section>
   )
 }

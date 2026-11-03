@@ -1,12 +1,11 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { getProductBySlug, getAllProducts } from '@/lib/products'
+import { useRouter } from 'next/navigation'
+import { getProductBySlug } from '@/lib/products'
 import { useCart } from '@/app/context/CartContext'
-import ProductCard from '@/components/shop/ProductCard'
-import { Colour } from '@/types'
 import { useWishlist } from '@/app/context/WishlistContext'
 import Toast, { useToast } from '@/components/ui/Toast'
 import { img } from '@/lib/image'
@@ -14,60 +13,32 @@ import { img } from '@/lib/image'
 const formatPrice = (price: number): string =>
   'R' + price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 
-const LIGHT_COLOURS = ['Ivory', 'White', 'Nude', 'Baby Pink']
-
-function StarRating({ rating, size = 16 }: { rating: number; size?: number }) {
-  return (
-    <div className="flex items-center gap-0.5">
-      {[1, 2, 3, 4, 5].map(star => (
-        <svg key={star} width={size} height={size} viewBox="0 0 24 24"
-          fill={star <= Math.round(rating) ? 'currentColor' : 'none'}
-          stroke="currentColor" strokeWidth="1.5" className="text-clay">
-          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
-        </svg>
-      ))}
-    </div>
-  )
-}
+const SIZE_CHART = [
+  { sa: 3, eu: 36, length: '22.5cm' },
+  { sa: 4, eu: 37, length: '23.5cm' },
+  { sa: 5, eu: 38, length: '24.5cm' },
+  { sa: 6, eu: 39, length: '25.5cm' },
+  { sa: 7, eu: 40, length: '26cm' },
+  { sa: 8, eu: 41, length: '26.5cm' },
+  { sa: 9, eu: 42, length: '27cm' },
+]
 
 function SizeGuideModal({ onClose }: { onClose: () => void }) {
-  const sizes = [
-    { sa: 3, eu: 36, length: '22.5cm' },
-    { sa: 4, eu: 37, length: '23.5cm' },
-    { sa: 5, eu: 38, length: '24.5cm' },
-    { sa: 6, eu: 39, length: '25.5cm' },
-    { sa: 7, eu: 40, length: '26cm' },
-    { sa: 8, eu: 41, length: '26.5cm' },
-    { sa: 9, eu: 42, length: '27cm' },
-  ]
   return (
-    <div className="fixed inset-0 bg-ink/50 z-50 flex items-center justify-center p-4" onClick={onClose}>
-      <div className="bg-cream max-w-sm w-full p-8 relative" onClick={e => e.stopPropagation()}>
-        <button onClick={onClose} className="absolute top-4 right-4 text-ink-light hover:text-ink transition-colors">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-          </svg>
-        </button>
-        <h3 className="font-cormorant font-semibold text-2xl text-ink mb-6">Size Guide</h3>
-        <table className="w-full">
-          <thead>
-            <tr className="border-b border-sand-dark">
-              <th className="font-dm text-xs text-ink-light text-left pb-3">SA Size</th>
-              <th className="font-dm text-xs text-ink-light text-left pb-3">EU Size</th>
-              <th className="font-dm text-xs text-ink-light text-left pb-3">Foot Length</th>
-            </tr>
-          </thead>
+    <div className="lx-dialog-backdrop" onClick={onClose}>
+      <div className="lx-dialog font-dm" role="dialog" aria-modal="true" aria-labelledby="size-guide-title" onClick={e => e.stopPropagation()}>
+        <button onClick={onClose} className="lx-dialog-close" aria-label="Close size guide">×</button>
+        <p className="lx-eyebrow">Find your fit</p>
+        <h2 id="size-guide-title" className="font-cormorant">Size guide</h2>
+        <p>Measure your foot from heel to toe. If you are between sizes, size up.</p>
+        <table className="lx-size-table">
+          <thead><tr><th>SA</th><th>EU</th><th>Foot length</th></tr></thead>
           <tbody>
-            {sizes.map(({ sa, eu, length }) => (
-              <tr key={sa} className="border-b border-sand/50">
-                <td className="font-dm text-sm text-ink py-3">{sa}</td>
-                <td className="font-dm text-sm text-ink py-3">{eu}</td>
-                <td className="font-dm text-sm text-ink py-3">{length}</td>
-              </tr>
+            {SIZE_CHART.map(({ sa, eu, length }) => (
+              <tr key={sa}><td>{sa}</td><td>{eu}</td><td>{length}</td></tr>
             ))}
           </tbody>
         </table>
-        <p className="font-dm text-xs text-ink-light mt-4">Measure your foot from heel to toe. If between sizes, size up.</p>
       </div>
     </div>
   )
@@ -77,44 +48,30 @@ export default function ProductPageClient({ slug }: { slug: string }) {
   const product = getProductBySlug(slug)
 
   const [mainImage, setMainImage] = useState<string>(product?.images[0] ?? '')
-  const [imageOpacity, setImageOpacity] = useState(1)
   const [selectedSize, setSelectedSize] = useState<number | null>(null)
   const [selectedJute, setSelectedJute] = useState<string | null>(null)
   const [selectedToe, setSelectedToe] = useState<string | null>(null)
   const [selectedColour, setSelectedColour] = useState<string | null>(null)
-  const [hoveredColour, setHoveredColour] = useState<Colour | null>(null)
   const [quantity, setQuantity] = useState(1)
   const [showSizeGuide, setShowSizeGuide] = useState(false)
   const [addedToCart, setAddedToCart] = useState(false)
-  const [activeTooltip, setActiveTooltip] = useState<string | null>(null)
-  const [tooltipTimeout, setTooltipTimeout] = useState<ReturnType<typeof setTimeout> | null>(null)
-  const [stickyVisible, setStickyVisible] = useState(false)
-  const [heartScale, setHeartScale] = useState(1)
   const { addToCart } = useCart()
   const { isInWishlist, addToWishlist, removeFromWishlist } = useWishlist()
   const { toast, showToast } = useToast()
-
-  // Sticky bar scroll listener
-  useEffect(() => {
-    const handler = () => setStickyVisible(window.scrollY > 500)
-    window.addEventListener('scroll', handler, { passive: true })
-    return () => window.removeEventListener('scroll', handler)
-  }, [])
+  const router = useRouter()
 
   if (!product) {
     return (
-      <div className="pt-24 min-h-screen bg-cream flex items-center justify-center">
+      <div className="min-h-[60vh] flex items-center justify-center">
         <p className="font-dm text-sm text-ink-light">Product not found.</p>
       </div>
     )
   }
 
-  const allProducts = getAllProducts()
-  const related = allProducts.filter(p => p.slug !== product.slug).slice(0, 3)
-
   const needsJute = product.juteOptions.length > 0
   const needsToe = product.toeOptions.length > 0
   const needsColour = product.colours.length > 0
+  const liked = isInWishlist(product.id)
 
   const isComplete =
     selectedSize !== null &&
@@ -122,410 +79,261 @@ export default function ProductPageClient({ slug }: { slug: string }) {
     (!needsToe || selectedToe !== null) &&
     (!needsColour || selectedColour !== null)
 
-  const getMissingText = () => {
+  const missingText = (() => {
     const missing: string[] = []
-    if (!selectedSize) missing.push('a size')
-    if (needsColour && !selectedColour) missing.push('a colour')
-    if (needsJute && !selectedJute) missing.push('a sole style')
-    if (needsToe && !selectedToe) missing.push('a toe style')
+    if (!selectedSize) missing.push('size')
+    if (needsJute && !selectedJute) missing.push('sole style')
+    if (needsToe && !selectedToe) missing.push('toe style')
+    if (needsColour && !selectedColour) missing.push('colour')
     if (!missing.length) return null
-    return `Please select ${missing.join(' and ')} to continue`
-  }
+    const list = missing.length > 1 ? `${missing.slice(0, -1).join(', ')} and ${missing[missing.length - 1]}` : missing[0]
+    return `Select your ${list} to continue.`
+  })()
 
-  const switchImage = (newSrc: string) => {
-    if (newSrc === mainImage) return
-    setImageOpacity(0)
-    setTimeout(() => { setMainImage(newSrc); setImageOpacity(1) }, 150)
+  const addSelection = () => {
+    const colourImage = product.colours.find(c => c.name === selectedColour)?.image ?? null
+    addToCart(product, selectedSize!, selectedColour ?? '', selectedJute ?? '', selectedToe ?? '', quantity, colourImage)
   }
 
   const handleAddToCart = () => {
     if (!isComplete) return
-    const colourImage = product.colours.find(c => c.name === selectedColour)?.image ?? null
-    addToCart(product, selectedSize!, selectedColour ?? '', selectedJute ?? '', selectedToe ?? '', quantity, colourImage)
+    addSelection()
     setAddedToCart(true)
     setTimeout(() => setAddedToCart(false), 2000)
   }
 
-  const handleTooltipEnter = (name: string) => {
-    if (tooltipTimeout) clearTimeout(tooltipTimeout)
-    const t = setTimeout(() => setActiveTooltip(name), 200)
-    setTooltipTimeout(t)
+  const handleBuyNow = () => {
+    if (!isComplete) return
+    addSelection()
+    router.push('/checkout')
   }
 
-  const handleTooltipLeave = () => {
-    if (tooltipTimeout) clearTimeout(tooltipTimeout)
-    setActiveTooltip(null)
+  const toggleLiked = () => {
+    if (liked) {
+      removeFromWishlist(product.id)
+      showToast('Removed from liked items')
+    } else {
+      addToWishlist(product)
+      showToast(`${product.name} added to liked items`)
+    }
   }
-
-  const pillClass = (active: boolean) =>
-    `px-4 py-2 text-xs font-dm tracking-wide border transition-all duration-200 cursor-pointer ${
-      active
-        ? 'bg-clay border-clay text-cream'
-        : 'bg-cream border-sand-dark text-ink hover:bg-sand'
-    }`
-
-  // Sticky bar options summary
-  const optionsSummary = (() => {
-    const parts = []
-    if (selectedSize) parts.push(`Size ${selectedSize}`)
-    if (selectedColour) parts.push(selectedColour)
-    if (selectedJute) parts.push(selectedJute)
-    if (selectedToe) parts.push(selectedToe)
-    return parts.length ? parts.join(' · ') : 'Select options'
-  })()
-
-  const thumbnailSrc = (product.colours.find(c => c.name === selectedColour)?.image) || product.image
 
   return (
     <>
       {showSizeGuide && <SizeGuideModal onClose={() => setShowSizeGuide(false)} />}
       <Toast message={toast.message} visible={toast.visible} />
 
-      {/* ── Sticky add-to-cart bar ── */}
-      <div
-        style={{
-          position: 'fixed', top: 0, left: 0, right: 0, height: 64,
-          background: 'white',
-          borderBottom: '1px solid #E8D4C7',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
-          zIndex: 40,
-          display: 'flex', alignItems: 'center',
-          padding: '0 24px',
-          gap: 16,
-          transform: stickyVisible ? 'translateY(0)' : 'translateY(-100%)',
-          transition: 'transform 300ms ease',
-        }}
-      >
-        <div className="relative w-10 h-10 flex-shrink-0 overflow-hidden rounded bg-sand">
-          <Image src={img(thumbnailSrc)} alt={product.name} fill className="object-cover" sizes="40px" />
-        </div>
-        <div className="flex-1 min-w-0">
-          <p className="font-cormorant font-semibold text-base text-ink leading-none">{product.name}</p>
-          <p className="font-dm text-xs text-ink-light mt-0.5 truncate">{optionsSummary}</p>
-        </div>
-        <p className="font-dm text-sm text-ink-mid flex-shrink-0 hidden sm:block">
-          {formatPrice(product.price)}
-        </p>
-        <button
-          onClick={handleAddToCart}
-          disabled={!isComplete}
-          className={`flex-shrink-0 px-6 py-2 font-dm text-xs font-medium tracking-widest uppercase transition-all duration-200 ${
-            isComplete
-              ? addedToCart ? 'bg-clay-dark text-cream' : 'bg-clay hover:bg-clay-dark text-cream'
-              : 'bg-sand-dark text-ink-light cursor-not-allowed'
-          }`}
-        >
-          {addedToCart ? 'Added ✓' : 'Add to Cart'}
-        </button>
-      </div>
+      <section className="lx-product-page lx-container font-dm">
+        <nav className="lx-breadcrumbs" aria-label="Breadcrumb">
+          <Link href="/">Home</Link><span aria-hidden>/</span>
+          <Link href="/shop">The Collection</Link><span aria-hidden>/</span>
+          <span>{product.name}</span>
+        </nav>
 
-      <div className="pt-20 lg:pt-24 min-h-screen bg-cream">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 lg:py-16">
-
-          {/* Breadcrumb */}
-          <nav className="flex items-center gap-2 mb-8">
-            <Link href="/" className="font-dm text-xs text-ink-light hover:text-ink transition-colors">Home</Link>
-            <span className="text-ink-light text-xs">/</span>
-            <Link href="/shop" className="font-dm text-xs text-ink-light hover:text-ink transition-colors">Shop</Link>
-            <span className="text-ink-light text-xs">/</span>
-            <span className="font-dm text-xs text-ink">{product.name}</span>
-          </nav>
-
-          {/* Main Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-[3fr_2fr] gap-10 lg:gap-16">
-            {/* Gallery */}
-            <div>
-              <div className="relative aspect-square bg-sand overflow-hidden mb-4">
-                {mainImage && (
-                  <Image
-                    src={img(mainImage)}
-                    alt={product.name}
-                    fill
-                    className="object-cover"
-                    style={{ opacity: imageOpacity, transition: 'opacity 150ms ease' }}
-                    sizes="(max-width: 1024px) 100vw, 60vw"
-                    priority
-                  />
-                )}
-                {/* Colour tint overlay (Upgrade 6) */}
-                <div
-                  aria-hidden
-                  style={{
-                    position: 'absolute', inset: 0,
-                    backgroundColor: hoveredColour?.hex ?? 'transparent',
-                    opacity: hoveredColour?.hex ? 0.25 : 0,
-                    mixBlendMode: 'multiply',
-                    transition: 'opacity 200ms ease',
-                    pointerEvents: 'none',
-                  }}
-                />
-              </div>
-              {product.images.length > 1 && (
-                <div className="flex gap-3 flex-wrap">
-                  {product.images.map((imageSrc, i) => (
-                    <button
-                      key={i}
-                      onClick={() => switchImage(imageSrc)}
-                      className={`relative w-20 h-20 flex-shrink-0 overflow-hidden border-2 transition-all duration-200 ${
-                        mainImage === imageSrc ? 'border-clay' : 'border-transparent hover:border-sand-dark'
-                      }`}
-                    >
-                      <Image src={img(imageSrc)} alt={`${product.name} view ${i + 1}`} fill className="object-cover" sizes="80px" />
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* Product Info */}
-            <div className="flex flex-col">
-              <p className="font-dm text-xs tracking-[0.2em] uppercase text-clay mb-3">Lynux Collection</p>
-              <div className="flex items-start justify-between gap-4 mb-4">
-                <h1 className="font-cormorant font-semibold text-4xl lg:text-5xl text-ink leading-tight">{product.name}</h1>
-                <button
-                  onClick={() => {
-                    setHeartScale(1.25)
-                    setTimeout(() => setHeartScale(1), 200)
-                    if (isInWishlist(product.id)) {
-                      removeFromWishlist(product.id)
-                      showToast('Removed from wishlist')
-                    } else {
-                      addToWishlist(product)
-                      showToast(`${product.name} added to wishlist`)
-                    }
-                  }}
-                  title={isInWishlist(product.id) ? 'Remove from Wishlist' : 'Add to Wishlist'}
-                  aria-label={isInWishlist(product.id) ? 'Remove from Wishlist' : 'Add to Wishlist'}
-                  style={{
-                    flexShrink: 0,
-                    width: 44, height: 44, borderRadius: '50%',
-                    background: 'white',
-                    border: '1px solid #E8D4C7',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    cursor: 'pointer',
-                    transform: `scale(${heartScale})`,
-                    transition: 'transform 200ms ease',
-                    marginTop: 4,
-                  }}
-                >
-                  <svg width="22" height="22" viewBox="0 0 24 24"
-                    fill={isInWishlist(product.id) ? '#E53E3E' : 'none'}
-                    stroke={isInWishlist(product.id) ? '#E53E3E' : '#9E9693'}
-                    strokeWidth="1.8">
-                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
-                  </svg>
-                </button>
-              </div>
-
-              {product.rating && (
-                <div className="flex items-center gap-2 mb-4">
-                  <StarRating rating={product.rating} />
-                  <span className="font-dm text-xs text-ink-light">({product.reviewCount} review{product.reviewCount !== 1 ? 's' : ''})</span>
-                </div>
-              )}
-
-              <div className="mb-5">
-                {product.priceRange ? (
-                  <p className="font-dm text-2xl text-ink-mid">
-                    {formatPrice(product.priceRange.min)} – {formatPrice(product.priceRange.max)}
-                  </p>
-                ) : (
-                  <p className="font-dm text-2xl text-ink-mid">{formatPrice(product.price)}</p>
-                )}
-              </div>
-
-              <hr className="border-sand-dark mb-5" />
-
-              <p className="font-dm text-sm text-ink-light leading-relaxed mb-5">{product.description}</p>
-
-              <ul className="space-y-2 mb-8">
-                {product.features.map(f => (
-                  <li key={f} className="flex items-start gap-2 font-dm text-sm text-ink-mid">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="text-clay flex-shrink-0 mt-0.5">
-                      <polyline points="20 6 9 17 4 12"/>
-                    </svg>
-                    {f}
-                  </li>
-                ))}
-              </ul>
-
-              {/* Size */}
-              <div className="mb-6">
-                <div className="flex items-center justify-between mb-3">
-                  <span className="font-dm text-xs uppercase tracking-[0.15em] text-ink font-medium">
-                    Size {selectedSize ? `— ${selectedSize}` : ''}
-                  </span>
-                  <button onClick={() => setShowSizeGuide(true)} className="font-dm text-xs text-clay hover:text-clay-dark underline underline-offset-2 transition-colors">
-                    View Size Guide
+        <div className="lx-product-layout">
+          <div className="lx-gallery">
+            {product.images.length > 1 && (
+              <div className="lx-gallery-thumbs">
+                {product.images.map((src, i) => (
+                  <button
+                    key={src}
+                    type="button"
+                    className="lx-gallery-thumb"
+                    aria-current={mainImage === src}
+                    aria-label={`Show image ${i + 1}`}
+                    onClick={() => setMainImage(src)}
+                  >
+                    <Image src={img(src)} alt="" fill sizes="78px" />
                   </button>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  {product.sizes.map(size => (
-                    <button key={size} onClick={() => setSelectedSize(size)} className={pillClass(selectedSize === size)}>{size}</button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Jute */}
-              {needsJute && (
-                <div className="mb-6">
-                  <p className="font-dm text-xs uppercase tracking-[0.15em] text-ink font-medium mb-3">
-                    Sole Style {selectedJute ? `— ${selectedJute}` : ''}
-                  </p>
-                  <div className="flex flex-wrap gap-2">
-                    {product.juteOptions.map(opt => (
-                      <button key={opt} onClick={() => setSelectedJute(opt)} className={pillClass(selectedJute === opt)}>{opt}</button>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Toe */}
-              {needsToe && (
-                <div className="mb-6">
-                  <p className="font-dm text-xs uppercase tracking-[0.15em] text-ink font-medium mb-3">
-                    Toe Style {selectedToe ? `— ${selectedToe}` : ''}
-                  </p>
-                  <div className="flex flex-wrap gap-2">
-                    {product.toeOptions.map(opt => (
-                      <button key={opt} onClick={() => setSelectedToe(opt)} className={pillClass(selectedToe === opt)}>{opt}</button>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Colour */}
-              {needsColour && (
-                <div className="mb-6">
-                  <p className="font-dm text-xs uppercase tracking-[0.15em] text-ink font-medium mb-3">
-                    {selectedColour
-                      ? <>Select Colour — <span style={{ color: '#C49B78' }}>{selectedColour}</span></>
-                      : 'Select Colour'
-                    }
-                  </p>
-                  <div className="flex flex-wrap gap-3">
-                    {product.colours.map(colour => {
-                      const isLight = LIGHT_COLOURS.includes(colour.name)
-                      const isSelected = selectedColour === colour.name
-                      return (
-                        <div key={colour.name} className="relative flex flex-col items-center">
-                          {activeTooltip === colour.name && (
-                            <div
-                              className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 whitespace-nowrap px-2 py-0.5 rounded-full text-[11px] font-dm text-cream pointer-events-none z-10"
-                              style={{ background: '#1D1B19' }}
-                            >
-                              {colour.name}
-                            </div>
-                          )}
-                          <button
-                            onClick={() => {
-                              setSelectedColour(colour.name)
-                              if (colour.image) switchImage(colour.image)
-                            }}
-                            onMouseEnter={() => {
-                              handleTooltipEnter(colour.name)
-                              setHoveredColour(colour)
-                            }}
-                            onMouseLeave={() => {
-                              handleTooltipLeave()
-                              setHoveredColour(null)
-                            }}
-                            title={colour.name}
-                            style={{
-                              width: '40px', height: '40px', borderRadius: '50%',
-                              background: colour.hex
-                                ? colour.hex
-                                : 'conic-gradient(#FF6B6B, #FFD93D, #6BCB77, #4D96FF, #C77DFF, #FF6B6B)',
-                              border: isLight ? '1px solid #E0D8CC' : 'none',
-                              outline: isSelected ? '3px solid #C49B78' : 'none',
-                              outlineOffset: '3px',
-                              transform: isSelected ? 'scale(1.15)' : 'scale(1)',
-                              transition: 'all 200ms ease',
-                              cursor: 'pointer',
-                              flexShrink: 0,
-                            }}
-                          />
-                        </div>
-                      )
-                    })}
-                  </div>
-                </div>
-              )}
-
-              {/* Quantity */}
-              <div className="mb-6">
-                <p className="font-dm text-xs uppercase tracking-[0.15em] text-ink font-medium mb-3">Quantity</p>
-                <div className="flex items-center border border-sand-dark w-fit">
-                  <button onClick={() => setQuantity(q => Math.max(1, q - 1))} className="px-4 py-2.5 font-dm text-sm text-ink-mid hover:text-ink hover:bg-sand transition-all">−</button>
-                  <span className="px-5 py-2.5 font-dm text-sm text-ink border-x border-sand-dark min-w-[3rem] text-center">{quantity}</span>
-                  <button onClick={() => setQuantity(q => q + 1)} className="px-4 py-2.5 font-dm text-sm text-ink-mid hover:text-ink hover:bg-sand transition-all">+</button>
-                </div>
-              </div>
-
-              {!isComplete && (
-                <p className="font-dm text-xs text-ink-light italic mb-4">{getMissingText()}</p>
-              )}
-
-              <button
-                onClick={handleAddToCart}
-                disabled={!isComplete}
-                className={`w-full py-4 font-dm text-sm font-medium tracking-widest uppercase transition-all duration-300 mb-6 ${
-                  isComplete
-                    ? addedToCart ? 'bg-clay-dark text-cream' : 'bg-clay hover:bg-clay-dark text-cream'
-                    : 'bg-sand-dark text-ink-light cursor-not-allowed'
-                }`}
-              >
-                {addedToCart ? 'Added ✓' : 'Add to Cart'}
-              </button>
-
-              {/* Trust Badges */}
-              <div className="grid grid-cols-3 gap-3 py-6 border-t border-sand-dark">
-                {[
-                  { label: 'Handcrafted to Order', icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-clay"><path d="M12 22C6.5 22 2 17.5 2 12S6.5 2 12 2s10 4.5 10 10-4.5 10-10 10z"/><path d="M8 12l3 3 5-5"/></svg> },
-                  { label: 'R65 Flat Rate Delivery', icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-clay"><rect x="1" y="3" width="15" height="13" rx="1"/><path d="M16 8h4l3 4v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg> },
-                  { label: 'Free Defect Exchange', icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-clay"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg> },
-                ].map(({ label, icon }) => (
-                  <div key={label} className="flex flex-col items-center text-center gap-2">
-                    {icon}
-                    <span className="font-dm text-[10px] text-ink-light leading-tight">{label}</span>
-                  </div>
                 ))}
-              </div>
-            </div>
-          </div>
-
-          {/* Reviews */}
-          <div className="mt-20 border-t border-sand-dark pt-12">
-            <h2 className="font-cormorant font-semibold text-3xl text-ink mb-8">Customer Reviews</h2>
-            {product.reviews && product.reviews.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {product.reviews.map((review, i) => (
-                  <div key={i} className="bg-sand p-6">
-                    <StarRating rating={review.rating} size={14} />
-                    <p className="font-dm text-sm text-ink-mid leading-relaxed mt-3 mb-4">&ldquo;{review.comment}&rdquo;</p>
-                    <p className="font-dm text-xs font-medium text-ink">{review.author}</p>
-                    <p className="font-dm text-xs text-ink-light">{review.date}</p>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="bg-sand p-10 text-center">
-                <p className="font-cormorant italic text-2xl text-ink-light mb-2">No reviews yet</p>
-                <p className="font-dm text-sm text-ink-light">Be the first to review this style.</p>
               </div>
             )}
-          </div>
-
-          {/* Related */}
-          <div className="mt-20 border-t border-sand-dark pt-12">
-            <h2 className="font-cormorant font-semibold text-3xl text-ink mb-8">You might also like</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 lg:gap-8">
-              {related.map(p => <ProductCard key={p.id} product={p} />)}
+            <div className="lx-gallery-main">
+              {mainImage && <Image src={img(mainImage)} alt={product.name} fill priority sizes="(max-width: 900px) 100vw, 55vw" />}
             </div>
           </div>
 
+          <div className="lx-product-info">
+            <p className="lx-eyebrow">Lynux collection</p>
+            <div className="lx-product-title">
+              <h1 className="font-cormorant">{product.name}</h1>
+              <button type="button" className="lx-like lx-like-large" onClick={toggleLiked} aria-pressed={liked}
+                aria-label={`${liked ? 'Remove' : 'Add'} ${product.name} ${liked ? 'from' : 'to'} liked items`}>
+                <svg viewBox="0 0 24 24" aria-hidden><path d="M12 20s-7.5-4.6-7.5-10.2A4.3 4.3 0 0 1 12 7.3a4.3 4.3 0 0 1 7.5 2.5C19.5 15.4 12 20 12 20z" /></svg>
+              </button>
+            </div>
+            <p className="lx-product-price">
+              {product.priceRange
+                ? `${formatPrice(product.priceRange.min)} – ${formatPrice(product.priceRange.max)}`
+                : formatPrice(product.price)}
+            </p>
+            <p className="lx-product-description">{product.description}</p>
+            <ul className="lx-product-facts">
+              {product.features.map(f => <li key={f}>{f}</li>)}
+            </ul>
+
+            <div className="lx-option-group">
+              <div className="lx-option-heading">
+                <span>Size</span>
+                <button type="button" onClick={() => setShowSizeGuide(true)}>View size guide</button>
+              </div>
+              <div className="lx-option-row">
+                {product.sizes.map(size => (
+                  <button key={size} type="button" className="lx-chip lx-chip-round" aria-pressed={selectedSize === size} onClick={() => setSelectedSize(size)}>{size}</button>
+                ))}
+              </div>
+            </div>
+
+            {needsJute && (
+              <div className="lx-option-group">
+                <div className="lx-option-heading"><span>Sole style</span></div>
+                <div className="lx-option-row">
+                  {product.juteOptions.map(opt => (
+                    <button key={opt} type="button" className="lx-chip" aria-pressed={selectedJute === opt} onClick={() => setSelectedJute(opt)}>{opt}</button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {needsToe && (
+              <div className="lx-option-group">
+                <div className="lx-option-heading"><span>Toe style</span></div>
+                <div className="lx-option-row">
+                  {product.toeOptions.map(opt => (
+                    <button key={opt} type="button" className="lx-chip" aria-pressed={selectedToe === opt} onClick={() => setSelectedToe(opt)}>{opt}</button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {needsColour && (
+              <div className="lx-option-group">
+                <div className="lx-option-heading"><span>Colour</span></div>
+                <div className="lx-option-row">
+                  {product.colours.map(colour => (
+                    <button
+                      key={colour.name}
+                      type="button"
+                      className="lx-colour-chip"
+                      title={colour.name}
+                      aria-label={colour.name}
+                      aria-pressed={selectedColour === colour.name}
+                      style={{ background: colour.hex ?? 'conic-gradient(#BD8D66, #D1C6A9, #77816A, #BD8D66)' }}
+                      onClick={() => {
+                        setSelectedColour(colour.name)
+                        if (colour.image) setMainImage(colour.image)
+                      }}
+                    />
+                  ))}
+                </div>
+                <p className="lx-option-note">{selectedColour ?? 'Select a colour'}</p>
+              </div>
+            )}
+
+            <div className="lx-option-group">
+              <div className="lx-option-heading"><span>Quantity</span></div>
+              <div className="lx-qty">
+                <button type="button" onClick={() => setQuantity(q => Math.max(1, q - 1))} aria-label="Decrease quantity">−</button>
+                <span>{quantity}</span>
+                <button type="button" onClick={() => setQuantity(q => q + 1)} aria-label="Increase quantity">+</button>
+              </div>
+            </div>
+
+            {missingText && <p className="lx-missing">{missingText}</p>}
+
+            <div className="lx-product-actions">
+              <button type="button" className="lx-button" disabled={!isComplete} onClick={handleAddToCart}>
+                {addedToCart ? 'Added to bag ✓' : 'Add to bag'}
+              </button>
+              <button type="button" className="lx-button lx-button-outline" disabled={!isComplete} onClick={handleBuyNow}>
+                Buy now
+              </button>
+            </div>
+
+            <div className="lx-purchase-note">
+              <span>Handcrafted to order</span>
+              <span>R65 flat-rate delivery</span>
+              <span>Free defect exchange</span>
+            </div>
+          </div>
         </div>
-      </div>
+
+        <div className="lx-product-additional">
+          <details className="lx-accordion">
+            <summary>Description</summary>
+            <p>{product.description}</p>
+          </details>
+          <details className="lx-accordion">
+            <summary>Shipping &amp; Returns</summary>
+            <p>Every pair is handcrafted to order and delivered anywhere in South Africa for a flat R65. Manufacturing defects are exchanged free of charge.</p>
+            <p><Link href="/returns" className="lx-text-link">Read the returns policy ↗</Link></p>
+          </details>
+        </div>
+      </section>
+
+      <style>{`
+        .lx-product-page { padding: 22px 0 90px; }
+        .lx-breadcrumbs { display: flex; gap: 9px; margin: 0 0 17px; color: var(--color-ink-light); font-size: 10px; letter-spacing: 0.04em; }
+        .lx-breadcrumbs a:hover { color: var(--color-ink); }
+        .lx-product-layout { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(340px, 0.8fr); gap: clamp(28px, 5vw, 72px); align-items: start; }
+        .lx-gallery { display: grid; grid-template-columns: 55px minmax(0, 1fr); gap: 9px; }
+        .lx-gallery-thumbs { display: flex; flex-direction: column; gap: 7px; }
+        .lx-gallery-thumb { position: relative; aspect-ratio: 1; padding: 0; overflow: hidden; border: 1px solid transparent; border-radius: 2px; background: #E8D4C7; cursor: pointer; }
+        .lx-gallery-thumb[aria-current="true"] { border-color: var(--color-ink); }
+        .lx-gallery-thumb img, .lx-gallery-main img { object-fit: cover; }
+        .lx-gallery-main { position: relative; grid-column: 2; aspect-ratio: 1.08; overflow: hidden; border-radius: 2px; background: #EAD9CE; }
+        .lx-product-info { position: sticky; top: 110px; padding: 8px 0; }
+        .lx-product-title { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; }
+        .lx-product-title h1 { margin: 0; font-size: 43px; font-weight: 400; line-height: 1.08; text-transform: uppercase; }
+        .lx-like-large { position: static; flex-shrink: 0; width: 34px; height: 34px; margin-top: 6px; border: 1px solid #DFCFC4; }
+        .lx-product-price { margin: 7px 0 13px; padding-bottom: 13px; border-bottom: 1px solid #DFCFC4; font-size: 16px; }
+        .lx-product-description { max-width: 500px; margin: 13px 0; color: var(--color-ink-light); font-size: 13px; }
+        .lx-product-facts { display: flex; flex-wrap: wrap; gap: 8px 17px; margin: 0 0 16px; padding: 0; list-style: none; color: #544E45; font-size: 11px; }
+        .lx-product-facts li::before { margin-right: 7px; color: var(--color-clay-dark); content: "✳"; }
+        .lx-option-group { margin: 16px 0; }
+        .lx-option-heading { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-size: 10px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; }
+        .lx-option-heading button { padding: 0; border: 0; border-bottom: 1px solid #DFCFC4; background: none; color: var(--color-ink-light); font-size: 10px; font-weight: 400; letter-spacing: 0; text-transform: none; cursor: pointer; }
+        .lx-option-row { display: flex; flex-wrap: wrap; gap: 7px; }
+        .lx-chip { min-width: 40px; height: 39px; padding: 0 12px; border: 1px solid #DFCFC4; border-radius: 30px; background: transparent; color: var(--color-ink); font-size: 11px; cursor: pointer; }
+        .lx-chip-round { width: 39px; padding: 0; border-radius: 50%; }
+        .lx-chip[aria-pressed="true"] { border-color: var(--color-ink); background: var(--color-ink); color: var(--color-cream); }
+        .lx-colour-chip { position: relative; width: 22px; height: 22px; padding: 0; border: 1px solid rgba(41,36,30,0.27); border-radius: 50%; cursor: pointer; }
+        .lx-colour-chip::after { position: absolute; inset: -4px; border: 1px solid transparent; border-radius: 50%; content: ""; }
+        .lx-colour-chip[aria-pressed="true"]::after { border-color: var(--color-ink); }
+        .lx-option-note { margin: 9px 0 0; color: var(--color-ink-light); font-size: 11px; }
+        .lx-missing { margin: 0 0 12px; color: var(--color-clay-dark); font-size: 11px; }
+        .lx-product-actions { display: grid; grid-template-columns: 1fr; gap: 8px; }
+        .lx-purchase-note { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 14px; padding-top: 17px; border-top: 1px solid #DFCFC4; }
+        .lx-purchase-note span { color: var(--color-ink-light); font-size: 9px; text-align: center; }
+        .lx-purchase-note span::before { display: block; margin-bottom: 5px; color: var(--color-clay-dark); content: "✳"; font-size: 16px; }
+        .lx-product-additional { margin-top: 42px; }
+        .lx-accordion { border-top: 1px solid #DFCFC4; }
+        .lx-accordion:last-child { border-bottom: 1px solid #DFCFC4; }
+        .lx-accordion summary { padding: 12px 0; font-size: 11px; list-style: none; cursor: pointer; }
+        .lx-accordion summary::-webkit-details-marker { display: none; }
+        .lx-accordion summary::after { float: right; content: "+"; font-size: 15px; }
+        .lx-accordion[open] summary::after { content: "−"; }
+        .lx-accordion p { margin: 0 0 12px; color: var(--color-ink-light); font-size: 11px; }
+        .lx-dialog-backdrop { position: fixed; inset: 0; z-index: 70; display: grid; place-items: center; padding: 15px; background: rgba(41,36,30,0.4); }
+        .lx-dialog { position: relative; width: min(440px, 100%); padding: 35px; border: 1px solid #DFCFC4; background: var(--color-cream); color: var(--color-ink); }
+        .lx-dialog h2 { margin: 0; font-size: 38px; font-weight: 400; }
+        .lx-dialog > p:not(.lx-eyebrow) { color: var(--color-ink-light); font-size: 12px; }
+        .lx-dialog-close { position: absolute; top: 12px; right: 16px; border: 0; background: none; font-size: 24px; cursor: pointer; }
+        .lx-size-table { width: 100%; margin-top: 18px; border-collapse: collapse; font-size: 11px; }
+        .lx-size-table th { padding: 8px 0; border-bottom: 1px solid #DFCFC4; color: var(--color-ink-light); font-weight: 500; text-align: left; }
+        .lx-size-table td { padding: 8px 0; border-bottom: 1px solid #DFCFC4; }
+        @media (max-width: 900px) {
+          .lx-product-layout { grid-template-columns: 1fr; }
+          .lx-product-info { position: static; }
+          .lx-gallery { grid-template-columns: 1fr; }
+          .lx-gallery-main { grid-column: 1; grid-row: 1; }
+          .lx-gallery-thumbs { flex-direction: row; overflow-x: auto; }
+          .lx-gallery-thumb { flex: 0 0 55px; }
+        }
+        @media (max-width: 680px) {
+          .lx-product-title h1 { font-size: 36px; }
+        }
+      `}</style>
     </>
   )
 }

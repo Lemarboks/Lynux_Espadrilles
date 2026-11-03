@@ -5,7 +5,6 @@ import { CartProvider } from './context/CartContext'
 import { WishlistProvider } from './context/WishlistContext'
 import Navbar from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
-import WhatsAppButton from '@/components/ui/WhatsAppButton'
 import CursorSpotlight from '@/components/ui/CursorSpotlight'
 
 const cormorant = Cormorant_Garamond({
@@ -34,13 +33,12 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={`${cormorant.variable} ${dmSans.variable} font-dm bg-cream text-ink antialiased`}>
+      <body className={`${cormorant.variable} ${dmSans.variable} font-dm bg-sand text-ink antialiased`}>
         <CartProvider>
           <WishlistProvider>
             <Navbar />
             <main>{children}</main>
             <Footer />
-            <WhatsAppButton />
             <CursorSpotlight />
           </WishlistProvider>
         </CartProvider>

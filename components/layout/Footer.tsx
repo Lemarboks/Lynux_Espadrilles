@@ -1,77 +1,95 @@
+'use client'
+
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
+
+const INSTAGRAM = 'https://instagram.com/lynux_espadrille'
+
+function Wordmark() {
+  return (
+    <span className="lx-wordmark">
+      <span className="font-cormorant lx-wordmark-main">LYNUX</span>
+      <span className="lx-wordmark-sub">ESPADRILLES</span>
+    </span>
+  )
+}
 
 export default function Footer() {
-  return (
-    <footer className="bg-ink text-cream">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
-          {/* Brand */}
-          <div>
-            <div className="mb-4">
-              <span className="font-cormorant font-semibold text-2xl text-cream block">Lynux</span>
-              <span className="font-dm text-[10px] text-cream/50 tracking-[0.2em] uppercase">Espadrilles</span>
-            </div>
-            <p className="font-dm text-sm text-cream/70 leading-relaxed mb-6">
-              Luxury handmade espadrilles crafted in South Africa with French and Spanish inspiration. Comfort in every way.
-            </p>
-            <a
-              href="https://instagram.com/lynux_espadrille"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 text-cream/70 hover:text-cream transition-colors duration-200"
-            >
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
-                <circle cx="12" cy="12" r="4"/>
-                <circle cx="17.5" cy="6.5" r="0.5" fill="currentColor"/>
-              </svg>
-              <span className="font-dm text-sm">@lynux_espadrille</span>
-            </a>
-          </div>
+  const pathname = usePathname()
 
-          {/* Quick Links */}
-          <div>
-            <h4 className="font-cormorant text-lg font-semibold text-cream mb-6 tracking-wide">Quick Links</h4>
-            <nav className="flex flex-col gap-3">
-              {[
-                { label: 'Home', href: '/' },
-                { label: 'Shop', href: '/shop' },
-                { label: 'About', href: '/about' },
-                { label: 'Returns', href: '/returns' },
-              ].map(({ label, href }) => (
-                <Link
-                  key={label}
-                  href={href}
-                  className="font-dm text-sm text-cream/70 hover:text-cream transition-colors duration-200"
-                >
-                  {label}
-                </Link>
-              ))}
-            </nav>
-          </div>
-
-          {/* Contact */}
-          <div>
-            <h4 className="font-cormorant text-lg font-semibold text-cream mb-6 tracking-wide">Contact</h4>
-            <div className="flex flex-col gap-3">
-              <a href="mailto:info@lynuxespadrilles.co.za" className="font-dm text-sm text-cream/70 hover:text-cream transition-colors duration-200">
-                info@lynuxespadrilles.co.za
-              </a>
-              <a href="https://instagram.com/lynux_espadrille" target="_blank" rel="noopener noreferrer" className="font-dm text-sm text-cream/70 hover:text-cream transition-colors duration-200">
-                @lynux_espadrille
-              </a>
-              <p className="font-dm text-sm text-cream/70">R65 flat rate delivery</p>
-              <p className="font-dm text-sm text-cream/70">South Africa</p>
-            </div>
-          </div>
+  // The Our story page closes with a slim brand line instead of the full footer
+  if (pathname === '/about' || pathname === '/about/') {
+    return (
+      <footer className="lx-story-footer font-dm">
+        <div className="lx-story-footer-inner">
+          <Wordmark />
+          <span>COMFORT IN EVERY WAY</span>
         </div>
+        <style>{footerCss}</style>
+      </footer>
+    )
+  }
 
-        <div className="border-t border-cream/10 mt-12 pt-8">
-          <p className="font-dm text-xs text-cream/40 text-center">
-            © 2023–2026 Lynux Espadrilles. All rights reserved.
-          </p>
+  return (
+    <footer className="lx-footer font-dm">
+      <div className="lx-footer-main">
+        <div className="lx-footer-brand">
+          <Wordmark />
+          <p>Luxury handmade espadrilles crafted in South Africa with French and Spanish inspiration. Comfort in every way.</p>
+          <a href={INSTAGRAM} target="_blank" rel="noopener noreferrer" className="lx-text-link">@lynux_espadrille ↗</a>
+        </div>
+        <div className="lx-footer-column">
+          <h2>Explore</h2>
+          <Link href="/">Home</Link>
+          <Link href="/shop">Shop</Link>
+          <Link href="/about">About</Link>
+          <Link href="/returns">Returns &amp; exchanges</Link>
+        </div>
+        <div className="lx-footer-column">
+          <h2>Get in touch</h2>
+          <a href="mailto:info@lynuxespadrilles.co.za">info@lynuxespadrilles.co.za</a>
+          <a href={INSTAGRAM} target="_blank" rel="noopener noreferrer">Instagram</a>
+          <span>South Africa</span>
+          <span>R65 flat-rate delivery</span>
         </div>
       </div>
+      <div className="lx-footer-bottom">
+        <span>© 2023–2026 Lynux Espadrilles. All rights reserved.</span>
+        <span>Handcrafted in South Africa</span>
+      </div>
+      <style>{footerCss}</style>
     </footer>
   )
 }
+
+const footerCss = `
+  .lx-wordmark { display: inline-flex; flex-direction: column; align-items: flex-start; line-height: 1; }
+  .lx-wordmark-main { font-size: 26px; letter-spacing: 0.17em; }
+  .lx-wordmark-sub { margin-top: 3px; font-size: 7px; font-weight: 600; letter-spacing: 0.38em; }
+  .lx-footer { padding: 58px 5vw 18px; background: #211E1B; color: #F9F2EC; }
+  .lx-footer-main {
+    display: grid; grid-template-columns: minmax(230px, 1.5fr) 1fr 1fr; gap: 50px;
+    width: min(1360px, 100%); margin: 0 auto; padding-bottom: 45px;
+  }
+  .lx-footer-brand > p { max-width: 350px; margin: 17px 0; color: #C8BDB4; font-size: 12px; line-height: 1.6; }
+  .lx-footer-brand .lx-text-link { color: #F9F2EC; }
+  .lx-footer-column { display: flex; flex-direction: column; align-items: flex-start; gap: 9px; }
+  .lx-footer-column h2 { margin: 0 0 8px; font-family: var(--font-dm), sans-serif; font-size: 10px; font-weight: 600; letter-spacing: 0.13em; text-transform: uppercase; }
+  .lx-footer-column a, .lx-footer-column span { color: #C8BDB4; font-size: 11px; transition: color 0.2s ease; }
+  .lx-footer-column a:hover { color: #FAF4EF; }
+  .lx-footer-bottom {
+    display: flex; justify-content: space-between; gap: 20px;
+    width: min(1360px, 100%); margin: 0 auto; padding-top: 15px;
+    border-top: 1px solid #4A423B; color: #C8BDB4; font-size: 9px;
+  }
+  .lx-story-footer { padding: 0 clamp(24px, 7vw, 100px); background: var(--color-sand); color: var(--color-ink); }
+  .lx-story-footer-inner {
+    display: flex; justify-content: space-between; align-items: center; gap: 20px;
+    padding: 25px 0 31px; border-top: 1px solid #DFCFC4; font-size: 10px; letter-spacing: 0.2em;
+  }
+  @media (max-width: 680px) {
+    .lx-footer-main { grid-template-columns: 1fr 1fr; gap: 32px; }
+    .lx-footer-brand { grid-column: 1 / -1; }
+    .lx-footer-bottom { flex-direction: column; gap: 6px; }
+  }
+`

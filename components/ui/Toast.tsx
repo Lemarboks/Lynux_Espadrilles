@@ -13,7 +13,7 @@ export default function Toast({ message, visible }: ToastProps) {
       aria-live="polite"
       style={{
         position: 'fixed',
-        bottom: 96, // above WhatsApp button (bottom-6 = 24px + 56px button = 80px, add 16px gap)
+        bottom: 24,
         left: '50%',
         transform: `translateX(-50%) translateY(${visible ? '0' : '12px'})`,
         background: '#C49B78',

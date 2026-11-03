@@ -22,7 +22,7 @@ export default function Hero() {
           Timeless Style.<br />Effortless Comfort.
         </h1>
         <p className="font-dm home-hero-text">Handcrafted espadrilles for every step of your journey.</p>
-        <Link href="/shop" className="font-dm home-button">
+        <Link href="/shop" className="font-dm lx-button">
           Shop the collection <span aria-hidden>→</span>
         </Link>
       </div>
@@ -30,12 +30,10 @@ export default function Hero() {
       <style>{`
         .home-hero {
           position: relative;
-          margin-top: 64px;
           height: clamp(430px, 38vw, 555px);
           overflow: hidden;
           background: #B99277;
         }
-        @media (min-width: 1024px) { .home-hero { margin-top: 80px; } }
         .home-hero-image { object-fit: cover; object-position: center 53%; }
         .home-hero-wash {
           position: absolute;

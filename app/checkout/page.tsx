@@ -178,10 +178,10 @@ export default function CheckoutPage() {
 
   if (cartItems.length === 0 && !submitted) {
     return (
-      <div className="pt-20 lg:pt-24 min-h-screen bg-cream flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <h1 className="font-cormorant font-semibold text-4xl text-ink mb-4">Your cart is empty</h1>
-          <Link href="/shop" className="inline-block font-dm text-sm bg-clay hover:bg-clay-dark text-cream px-8 py-3.5 transition-all duration-300">
+          <h1 className="font-cormorant font-normal text-4xl text-ink mb-4">Your cart is empty</h1>
+          <Link href="/shop" className="lx-button">
             Shop Collection
           </Link>
         </div>
@@ -191,9 +191,9 @@ export default function CheckoutPage() {
 
   if (submitted && !receipt) {
     return (
-      <div className="pt-20 lg:pt-24 min-h-screen bg-cream flex items-center justify-center px-4">
+      <div className="min-h-screen flex items-center justify-center px-4">
         <div className="max-w-md w-full text-center">
-          <h1 className="font-cormorant font-semibold text-4xl text-ink mb-4">Confirming your payment…</h1>
+          <h1 className="font-cormorant font-normal text-4xl text-ink mb-4">Confirming your payment…</h1>
           <p className="font-dm text-sm text-ink-light">This only takes a moment. Please don&apos;t close this page.</p>
         </div>
       </div>
@@ -203,9 +203,9 @@ export default function CheckoutPage() {
   if (submitted && receipt && receipt.status !== 'paid') {
     const failed = receipt.status === 'failed'
     return (
-      <div className="pt-20 lg:pt-24 min-h-screen bg-cream flex items-center justify-center px-4">
+      <div className="min-h-screen flex items-center justify-center px-4">
         <div className="max-w-md w-full text-center">
-          <h1 className="font-cormorant font-semibold text-4xl text-ink mb-4">
+          <h1 className="font-cormorant font-normal text-4xl text-ink mb-4">
             {failed ? 'Payment not completed' : 'We’re still confirming your payment'}
           </h1>
           <p className="font-dm text-sm text-ink-light leading-relaxed mb-6">
@@ -213,11 +213,11 @@ export default function CheckoutPage() {
               ? 'Your payment didn’t go through and you have not been charged. Please try again.'
               : 'If money left your account, don’t worry. We’ll check it and contact you. Please keep your reference below.'}
           </p>
-          <div className="bg-sand px-6 py-4 mb-8">
+          <div className="bg-cream border border-sand-dark px-6 py-4 mb-8">
             <p className="font-dm text-xs text-ink-light uppercase tracking-widest mb-1">Reference</p>
-            <p className="font-cormorant font-semibold text-2xl text-ink break-all">{orderRef}</p>
+            <p className="font-cormorant font-normal text-2xl text-ink break-all">{orderRef}</p>
           </div>
-          <Link href={failed ? '/cart' : '/shop'} className="inline-block font-dm text-sm bg-clay hover:bg-clay-dark text-cream px-8 py-3.5 transition-all duration-300">
+          <Link href={failed ? '/cart' : '/shop'} className="lx-button">
             {failed ? 'Back to Cart' : 'Continue Shopping'}
           </Link>
         </div>
@@ -227,7 +227,7 @@ export default function CheckoutPage() {
 
   if (submitted && receipt) {
     return (
-      <div className="pt-20 lg:pt-24 min-h-screen bg-cream flex items-center justify-center px-4 py-12">
+      <div className="min-h-screen flex items-center justify-center px-4 py-12">
         <div className="max-w-md w-full">
           <div className="text-center">
             <div className="flex justify-center mb-6 print:hidden">
@@ -237,14 +237,14 @@ export default function CheckoutPage() {
                 </svg>
               </div>
             </div>
-            <h1 className="font-cormorant font-semibold text-4xl text-ink mb-4">Payment Successful!</h1>
+            <h1 className="font-cormorant font-normal text-4xl text-ink mb-4">Payment Successful!</h1>
             <p className="font-dm text-sm text-ink-light leading-relaxed mb-6">
               Thank you{receipt.fullName ? `, ${receipt.fullName.split(' ')[0]}` : ''}. We&apos;ve received your payment and emailed you a receipt. We&apos;ll be in touch within 24 hours to confirm your order and shipping details.
             </p>
           </div>
-          <div className="bg-sand px-6 py-6 mb-8">
+          <div className="bg-cream border border-sand-dark px-6 py-6 mb-8">
             <p className="font-dm text-xs text-ink-light uppercase tracking-widest mb-1">Receipt · Order Reference</p>
-            <p className="font-cormorant font-semibold text-2xl text-ink break-all">{receipt.reference}</p>
+            <p className="font-cormorant font-normal text-2xl text-ink break-all">{receipt.reference}</p>
             {receipt.paidAt && (
               <p className="font-dm text-xs text-ink-light mt-1">
                 Paid {new Date(receipt.paidAt).toLocaleString('en-ZA', { timeZone: 'Africa/Johannesburg' })}
@@ -266,17 +266,17 @@ export default function CheckoutPage() {
                   <span className="font-dm text-sm text-ink">{formatPrice(receipt.order.delivery)}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="font-cormorant font-semibold text-lg text-ink">Total paid</span>
-                  <span className="font-cormorant font-semibold text-lg text-ink">{formatPrice(receipt.order.total)}</span>
+                  <span className="font-cormorant font-normal text-lg text-ink">Total paid</span>
+                  <span className="font-cormorant font-normal text-lg text-ink">{formatPrice(receipt.order.total)}</span>
                 </div>
               </div>
             )}
           </div>
           <div className="flex flex-col sm:flex-row gap-3 justify-center print:hidden">
-            <button onClick={() => window.print()} className="font-dm text-sm border border-clay text-clay hover:bg-clay hover:text-cream px-8 py-3.5 transition-all duration-300">
+            <button onClick={() => window.print()} className="lx-button lx-button-outline">
               Print / Save Receipt
             </button>
-            <Link href="/shop" className="text-center font-dm text-sm bg-clay hover:bg-clay-dark text-cream px-8 py-3.5 transition-all duration-300">
+            <Link href="/shop" className="lx-button">
               Continue Shopping
             </Link>
           </div>
@@ -286,15 +286,15 @@ export default function CheckoutPage() {
   }
 
   return (
-    <div className="pt-20 lg:pt-24 min-h-screen bg-cream">
+    <div className="min-h-screen">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
-        <h1 className="font-cormorant font-semibold text-4xl lg:text-5xl text-ink mb-10">Checkout</h1>
+        <h1 className="font-cormorant font-normal text-4xl lg:text-5xl text-ink mb-10">Checkout</h1>
 
         <div className="grid grid-cols-1 lg:grid-cols-[3fr_2fr] gap-10 lg:gap-16 items-start">
           {/* LEFT: Form */}
           <form onSubmit={handleSubmit} noValidate>
             <div className="mb-8">
-              <h2 className="font-cormorant font-semibold text-2xl text-ink mb-6">Contact Details</h2>
+              <h2 className="font-cormorant font-normal text-2xl text-ink mb-6">Contact Details</h2>
               <div className="space-y-4">
                 <div>
                   <label className="font-dm text-xs uppercase tracking-widest text-ink-mid block mb-1.5">Full Name *</label>
@@ -315,7 +315,7 @@ export default function CheckoutPage() {
             </div>
 
             <div className="mb-8">
-              <h2 className="font-cormorant font-semibold text-2xl text-ink mb-6">Delivery Address</h2>
+              <h2 className="font-cormorant font-normal text-2xl text-ink mb-6">Delivery Address</h2>
               <div className="space-y-4">
                 <div>
                   <label className="font-dm text-xs uppercase tracking-widest text-ink-mid block mb-1.5">Street Address *</label>
@@ -353,7 +353,7 @@ export default function CheckoutPage() {
             </div>
 
             <div className="mb-8">
-              <h2 className="font-cormorant font-semibold text-2xl text-ink mb-6">Special Instructions</h2>
+              <h2 className="font-cormorant font-normal text-2xl text-ink mb-6">Special Instructions</h2>
               <div>
                 <label className="font-dm text-xs uppercase tracking-widest text-ink-mid block mb-1.5">Notes (optional)</label>
                 <textarea value={form.notes} onChange={e => setForm(f => ({ ...f, notes: e.target.value }))} rows={4} className="w-full font-dm text-sm text-ink border border-sand-dark px-4 py-3 bg-cream focus:outline-none focus:border-clay transition-colors duration-200 resize-none" placeholder="Any special requests or customisation notes..." />
@@ -369,7 +369,7 @@ export default function CheckoutPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-4 font-dm text-sm font-medium tracking-widest uppercase bg-clay hover:bg-clay-dark text-cream transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed"
+              className="lx-button w-full"
             >
               {loading ? 'Redirecting to payment...' : 'Pay Now'}
             </button>
@@ -381,8 +381,8 @@ export default function CheckoutPage() {
 
           {/* RIGHT: Order Summary */}
           <div className="lg:sticky lg:top-24">
-            <div className="bg-sand p-6 lg:p-8">
-              <h2 className="font-cormorant font-semibold text-2xl text-ink mb-6">Order Summary</h2>
+            <div className="bg-cream border border-sand-dark p-6 lg:p-8">
+              <h2 className="font-cormorant font-normal text-2xl text-ink mb-6">Order Summary</h2>
               <div className="space-y-4 mb-6">
                 {cartItems.map(item => (
                   <div key={item.cartId} className="flex gap-4">
@@ -390,7 +390,7 @@ export default function CheckoutPage() {
                       <Image src={img(item.product.image)} alt={item.product.name} fill className="object-cover" sizes="64px" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="font-cormorant font-semibold text-base text-ink leading-tight">{item.product.name}</p>
+                      <p className="font-cormorant font-normal text-base text-ink leading-tight">{item.product.name}</p>
                       <p className="font-dm text-xs text-ink-light mt-0.5">
                         Size {item.size}{item.colour && ` · ${item.colour}`}{item.jute && ` · ${item.jute}`}{item.toe && ` · ${item.toe}`}
                       </p>
@@ -410,8 +410,8 @@ export default function CheckoutPage() {
                   <span className="font-dm text-sm text-ink">{formatPrice(delivery)}</span>
                 </div>
                 <div className="flex justify-between border-t border-sand-dark pt-3">
-                  <span className="font-cormorant font-semibold text-lg text-ink">Total</span>
-                  <span className="font-cormorant font-semibold text-lg text-ink">{formatPrice(total)}</span>
+                  <span className="font-cormorant font-normal text-lg text-ink">Total</span>
+                  <span className="font-cormorant font-normal text-lg text-ink">{formatPrice(total)}</span>
                 </div>
               </div>
             </div>
