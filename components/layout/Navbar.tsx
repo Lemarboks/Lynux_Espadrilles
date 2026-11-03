@@ -80,7 +80,7 @@ export default function Navbar() {
             {/* Logo */}
             <Link href="/" className="flex-shrink-0">
               <Image
-                src={img('/images/logo.png')}
+                src={img('/images/logo-black.png')}
                 alt="Lynux Espadrilles"
                 width={110}
                 height={70}
