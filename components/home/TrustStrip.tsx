@@ -19,7 +19,7 @@ export default function TrustStrip() {
           grid-template-columns: repeat(3, 1fr);
           padding: 15px max(5vw, 24px);
           border-bottom: 1px solid #DFCFC4;
-          background: #F8F0EA;
+          background: var(--color-sand);
         }
         .trust-strip span {
           display: flex;

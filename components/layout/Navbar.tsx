@@ -195,7 +195,7 @@ export default function Navbar() {
           display: grid; grid-template-columns: 1fr 1fr 1fr; align-items: center;
           min-height: 67px; padding: 0 clamp(24px, 7vw, 106px);
           border-bottom: 1px solid rgba(41,36,30,0.1);
-          background: rgba(250,244,239,0.97); color: var(--color-ink);
+          background: var(--color-sand); color: var(--color-ink);
         }
         .lx-logo { justify-self: start; display: block; }
         .lx-logo img { height: 52px; width: auto; }
@@ -224,12 +224,12 @@ export default function Navbar() {
         .lx-bag:hover { background: var(--color-ink); color: var(--color-cream); }
         .lx-bag:hover .lx-count { background: var(--color-cream); color: var(--color-ink); }
         .lx-bag-icon { display: none; }
-        .lx-search { border-bottom: 1px solid rgba(41,36,30,0.1); background: rgba(250,244,239,0.98); }
+        .lx-search { border-bottom: 1px solid rgba(41,36,30,0.1); background: var(--color-sand); }
         .lx-drawer-backdrop { position: fixed; inset: 0; z-index: 60; background: rgba(29,27,25,0.4); }
         .lx-drawer {
           position: absolute; top: 0; left: 0; bottom: 0; width: min(300px, 82vw);
           display: flex; flex-direction: column; gap: 18px; padding: 70px 28px 28px;
-          background: var(--color-cream);
+          background: var(--color-sand);
         }
         .lx-drawer a { font-size: 26px; }
         .lx-drawer .lx-drawer-social { margin-top: auto; font-size: 12px; color: var(--color-ink-light); }

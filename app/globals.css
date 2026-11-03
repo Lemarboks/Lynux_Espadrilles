@@ -4,7 +4,7 @@
   --font-cormorant: "Cormorant Garamond", serif;
   --font-dm: "DM Sans", sans-serif;
 
-  --color-sand: #F2EFE9; /* page background: off-white, a touch below pure white so white product photos still read */
+  --color-sand: #ECE6DC; /* page background: off-white that still reads as off-white on bright desktop screens */
   --color-sand-dark: #E8D4C7;
   --color-clay: #C49B78;
   --color-clay-dark: #9D7657;
