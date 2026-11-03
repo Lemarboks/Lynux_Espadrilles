@@ -1,8 +1,10 @@
+import { saveOrder } from '../../lib/orders-db'
 import { checkPayment, customerReceiptEmail, Env, isValidPaystackSignature, ownerOrderEmail, sendEmail, verifyTransaction } from '../../lib/payments'
 
 // POST /api/paystack-webhook
-// Set this URL in Paystack: Settings → API Keys & Webhooks → Live Webhook URL.
-// Paystack calls it when a payment succeeds; we email the owner the order and the customer a receipt.
+// Set this URL in Paystack: Developers → Webhooks, event charge.success.
+// Paystack calls it when a payment succeeds; we save the order for /admin, then email
+// the owner the order and the customer a receipt.
 
 export async function onRequestPost({ request, env }: { request: Request; env: Env }) {
   if (!env.PAYSTACK_SECRET_KEY) return new Response('Not configured', { status: 500 })
@@ -17,6 +19,11 @@ export async function onRequestPost({ request, env }: { request: Request; env: E
   // Re-fetch from Paystack rather than trusting the event body alone
   const payment = await verifyTransaction(env, event.data.reference).catch(() => checkPayment(event.data))
   if (payment.status !== 'paid' && payment.status !== 'mismatch') return new Response('ok')
+
+  // Paystack retries webhooks, so only email the first time an order is saved.
+  // If the database is down, still send the emails rather than lose the order.
+  const isNew = env.DB ? await saveOrder(env.DB, payment).catch(err => { console.error('saveOrder failed', err); return true }) : true
+  if (!isNew) return new Response('ok')
 
   const tasks = [sendEmail(env, env.ORDER_NOTIFY_EMAIL ?? '', ownerOrderEmail(payment), payment.email)]
   // Customers only get a receipt when the amount matches the items

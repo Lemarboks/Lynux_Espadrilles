@@ -1,4 +1,6 @@
 import { describeLine, priceOrder, PricedOrder } from './order'
+import { products } from './products'
+import type { D1Database } from './orders-db'
 
 // Server-only helpers for the Cloudflare Pages Functions. Never import this from app/ or components/.
 
@@ -8,6 +10,10 @@ export interface Env {
   RESEND_API_KEY?: string
   ORDER_EMAIL_FROM?: string
   ORDER_NOTIFY_EMAIL?: string
+  // Management portal: D1 binding plus the Cloudflare Access app that guards /admin
+  DB?: D1Database
+  ACCESS_TEAM_DOMAIN?: string
+  ACCESS_AUD?: string
 }
 
 export interface Customer {
@@ -17,12 +23,13 @@ export interface Customer {
   notes: string
 }
 
-interface PaystackTransaction {
+export interface PaystackTransaction {
   status: string
   reference: string
   amount: number
   currency: string
   paid_at?: string
+  created_at?: string
   customer?: { email?: string }
   metadata?: unknown
 }
@@ -37,6 +44,8 @@ export interface CheckedPayment {
   email: string
   customer: Customer | null
   order: PricedOrder | null
+  // What the customer chose, even when it couldn't be priced (e.g. a product since renamed)
+  rawItems: { name: string; quantity: number; details: string }[]
 }
 
 export const json = (body: unknown, status = 200) =>
@@ -78,8 +87,19 @@ const parseMetadata = (raw: unknown): Record<string, unknown> => {
 export function checkPayment(tx: PaystackTransaction): CheckedPayment {
   const meta = parseMetadata(tx.metadata)
   const orderMeta = parseMetadata(meta.order)
-  const order = priceOrder(orderMeta.lines)
-  const c = parseMetadata(orderMeta.customer)
+  // Orders from the old browser-priced checkout stored items by name at the top level
+  const legacy = !Array.isArray(orderMeta.lines) && Array.isArray(meta.items)
+  const rawLines = (legacy ? meta.items : orderMeta.lines) as Record<string, unknown>[] | undefined
+  const lines = legacy
+    ? rawLines!.map(i => ({ ...i, id: products.find(p => p.name === i.name)?.id }))
+    : rawLines
+  const order = priceOrder(lines)
+  const rawItems = (Array.isArray(rawLines) ? rawLines : []).slice(0, 50).map(i => ({
+    name: String(i.name ?? products.find(p => p.id === i.id)?.name ?? `Product #${i.id}`),
+    quantity: Number(i.quantity) || 0,
+    details: [i.size ? `Size ${i.size}` : '', i.colour, i.jute, i.toe].filter(Boolean).map(String).join(' · '),
+  }))
+  const c = legacy ? meta : parseMetadata(orderMeta.customer)
   const customer: Customer | null = typeof c.fullName === 'string'
     ? { fullName: c.fullName, phone: String(c.phone ?? ''), address: String(c.address ?? ''), notes: String(c.notes ?? '') }
     : null
@@ -93,10 +113,11 @@ export function checkPayment(tx: PaystackTransaction): CheckedPayment {
     status,
     reference: tx.reference,
     amountPaid: tx.amount / 100,
-    paidAt: tx.paid_at ?? null,
+    paidAt: tx.paid_at ?? tx.created_at ?? null,
     email: tx.customer?.email ?? '',
     customer,
     order,
+    rawItems,
   }
 }
 
@@ -174,6 +195,22 @@ export function ownerOrderEmail(p: CheckedPayment) {
           ${escapeHtml(c?.address ?? '')}
         </p>
         ${c?.notes ? `<h3>Notes</h3><p>${escapeHtml(c.notes)}</p>` : ''}
+      </div>`,
+  }
+}
+
+export function shippedEmail(o: { reference: string; fullName: string; tracking: string; items: { name: string; quantity: number; details: string }[] }) {
+  const name = o.fullName.split(' ')[0] || 'there'
+  const items = o.items.map(i => `<li>${escapeHtml(i.name)} × ${i.quantity} <span style="color:#7a6a5a">(${escapeHtml(i.details)})</span></li>`).join('')
+  return {
+    subject: `Your Lynux Espadrilles order is on its way · ${o.reference}`,
+    html: `
+      <div style="font-family:Georgia,serif;max-width:560px;margin:auto;color:#2b2118">
+        <h1 style="font-weight:normal">Good news, ${escapeHtml(name)}!</h1>
+        <p>Your order has been shipped.</p>
+        <ul style="font-size:14px">${items}</ul>
+        ${o.tracking ? `<p>Tracking number: <strong>${escapeHtml(o.tracking)}</strong></p>` : ''}
+        <p style="font-size:13px;color:#7a6a5a">Order reference: ${escapeHtml(o.reference)}<br>Questions? Just reply to this email.</p>
       </div>`,
   }
 }

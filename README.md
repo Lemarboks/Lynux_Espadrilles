@@ -64,3 +64,22 @@ Node version comes from `.node-version`. Security headers live in `public/_heade
 
 - **Paystack dashboard → Transactions → click a payment.** Items, name, phone, address and notes appear as labelled fields.
 - **Email**: if Resend is set up, every paid order is emailed to `ORDER_NOTIFY_EMAIL`. If the amount ever doesn't match the items, the subject starts with **⚠️ CHECK**. Don't ship those until you've looked.
+
+## Management portal (`/admin`)
+
+A private page listing every paid order, where you set **New → Packed → Shipped → Delivered**, add a tracking number and private notes, and optionally email the customer when it ships. **Import from Paystack** pulls in earlier orders (safe to click again; no emails are sent).
+
+- Orders are stored in a Cloudflare **D1** database by the Paystack webhook (`lib/orders-db.ts`; the table is created automatically).
+- Login is **Cloudflare Access** (one-time code sent to an allowed email). The `/api/admin/*` functions also verify the Access token themselves (`lib/access.ts`), so the data stays locked even on `*.pages.dev` URLs that Access doesn't cover. If Access isn't configured, the API refuses everything.
+
+### One-time setup
+
+1. **Database**: Cloudflare → Storage & databases → **D1** → Create → name `lynux-orders`.
+2. **Bind it**: Pages project → Settings → **Bindings** → Add → D1 database → variable name `DB` → `lynux-orders` (Production).
+3. **Login**: Cloudflare → **Zero Trust** → Access → Applications → Add → **Self-hosted**:
+   - Application domain: `lynuxespadrilles.co.za`, path `admin`, and a second destination `lynuxespadrilles.co.za`, path `api/admin`
+   - Policy: Action **Allow**, Include → **Emails** → the owner's email (and anyone else who should see orders)
+   - Login method: **One-time PIN**
+4. Copy the application's **Audience (AUD) tag** and your **team domain** (Zero Trust → Settings → Custom pages / team name, e.g. `lynux.cloudflareaccess.com`).
+5. Pages → Settings → Variables and Secrets (Production): `ACCESS_AUD` = the AUD tag, `ACCESS_TEAM_DOMAIN` = the team domain. Redeploy.
+6. Open `https://lynuxespadrilles.co.za/admin/`, sign in with the code emailed to you, then click **Import from Paystack**.

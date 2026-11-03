@@ -13,3 +13,8 @@
 # Next.js hashed assets never change, so cache them for a year
 /_next/static/*
   Cache-Control: public, max-age=31536000, immutable
+
+# Private order portal: never cache
+/admin/*
+  Cache-Control: no-store
+  X-Robots-Tag: noindex, nofollow
