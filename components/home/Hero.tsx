@@ -1,451 +1,104 @@
-'use client'
-
-import { useEffect, useState, useRef, useCallback } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { img } from '@/lib/image'
 
-const heroSlides = [
-  { src: "/images/the-lynux.png",         name: "The Lynux",        price: "From R1,099.00", slug: "the-lynux",        tagline: "Shoes made",      taglineItalic: "for every",  taglineEnd: "occasion"  },
-  { src: "/images/the-mule-3.jpg",        name: "The Mule",         price: "From R1,299.00", slug: "the-mule",         tagline: "Step into",       taglineItalic: "effortless", taglineEnd: "style"     },
-  { src: "/images/florencia-cerrada.jpg", name: "Florencia Cerrada",price: "From R1,499.00", slug: "florencia-cerrada",tagline: "Closed toe,",     taglineItalic: "open",       taglineEnd: "heart"     },
-  { src: "/images/lucia-wedge.png",       name: "Lucia Wedge",      price: "From R1,299.00", slug: "lucia-wedge",      tagline: "Elevate",         taglineItalic: "every",      taglineEnd: "step"      },
-  { src: "/images/the-bella.jpg",         name: "The Bella",        price: "From R999.00",   slug: "the-bella",        tagline: "Crafted",         taglineItalic: "with",       taglineEnd: "love"      },
-  { src: "/images/valeria.png",           name: "Valeria",          price: "From R1,099.00", slug: "valeria",          tagline: "Made",            taglineItalic: "just",       taglineEnd: "for you"   },
-  { src: "/images/ariana.png",            name: "Ariana",           price: "From R1,099.00", slug: "ariana",           tagline: "Bold colours,",   taglineItalic: "gentle",     taglineEnd: "comfort"   },
-  { src: "/images/carnero-slipper.jpg",   name: "Carnero Slipper",  price: "From R1,299.00", slug: "carnero-slipper",  tagline: "Wrap your feet",  taglineItalic: "in pure",    taglineEnd: "softness"  },
-  { src: "/images/1000038200.jpg",        name: "The Lynux",        price: "From R1,099.00", slug: "the-lynux",        tagline: "Born for",        taglineItalic: "sun &",      taglineEnd: "sea"       },
-  { src: "/images/1000038203.jpg",        name: "The Bella",        price: "From R999.00",   slug: "the-bella",        tagline: "Tied with",       taglineItalic: "intention,", taglineEnd: "worn with love" },
-]
-
-const INTERVAL = 4000
-const FADE_DURATION = 800
-const HERO_BACKGROUND = '/images/1000038200.jpg'
-
+// Full-width lifestyle photo with the copy over a warm wash, as in the Lynux concept homepage
 export default function Hero() {
-  const [visible, setVisible] = useState(false)
-  const [currentIndex, setCurrentIndex] = useState(0)
-  const [nextIndex, setNextIndex] = useState<number | null>(null)
-  const [transitioning, setTransitioning] = useState(false)
-  const [badgeVisible, setBadgeVisible] = useState(true)
-  const [taglineA, setTaglineA] = useState(heroSlides[0])
-  const [taglineB, setTaglineB] = useState(heroSlides[1 % heroSlides.length])
-  const [activeLayer, setActiveLayer] = useState<'a' | 'b'>('a')
-  const [hovered, setHovered] = useState(false)
-  const [arrowsVisible, setArrowsVisible] = useState(false)
-  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
-  const transitioningRef = useRef(false)
-
-  useEffect(() => {
-    const timer = setTimeout(() => setVisible(true), 100)
-    return () => clearTimeout(timer)
-  }, [])
-
-  const goToSlide = useCallback((index: number) => {
-    if (transitioningRef.current || index === currentIndex) return
-    transitioningRef.current = true
-    setTransitioning(true)
-    setNextIndex(index)
-    setBadgeVisible(false)
-    // Load incoming tagline into the inactive layer, then swap — simultaneous crossfade
-    if (activeLayer === 'a') {
-      setTaglineB(heroSlides[index])
-      setActiveLayer('b')
-    } else {
-      setTaglineA(heroSlides[index])
-      setActiveLayer('a')
-    }
-    setTimeout(() => {
-      setCurrentIndex(index)
-      setNextIndex(null)
-      setTransitioning(false)
-      transitioningRef.current = false
-      setBadgeVisible(true)
-    }, FADE_DURATION)
-  }, [currentIndex, activeLayer])
-
-  const advance = useCallback(() => {
-    goToSlide((currentIndex + 1) % heroSlides.length)
-  }, [currentIndex, goToSlide])
-
-  const goBack = useCallback(() => {
-    goToSlide((currentIndex - 1 + heroSlides.length) % heroSlides.length)
-  }, [currentIndex, goToSlide])
-
-  useEffect(() => {
-    if (hovered) {
-      if (intervalRef.current) clearInterval(intervalRef.current)
-      return
-    }
-    intervalRef.current = setInterval(advance, INTERVAL)
-    return () => { if (intervalRef.current) clearInterval(intervalRef.current) }
-  }, [hovered, advance])
-
-  const current = heroSlides[currentIndex]
-  const next = nextIndex !== null ? heroSlides[nextIndex] : null
-
   return (
-    <section
-      className="home-hero"
-      style={{
-        display: 'flex',
-        minHeight: '100vh',
-        overflow: 'hidden',
-        background: '#FAF4EF',
-        position: 'relative',
-        isolation: 'isolate',
-      }}
-    >
-      <div className="hero-background-layer" aria-hidden>
-        <Image
-          src={img(HERO_BACKGROUND)}
-          alt=""
-          fill
-          priority
-          sizes="100vw"
-          className="hero-background"
-        />
-        <div className="hero-background-wash" />
+    <section className="home-hero">
+      <Image
+        src={img('/images/1000038200.jpg')}
+        alt="Lynux espadrilles lifestyle"
+        fill
+        priority
+        sizes="100vw"
+        className="home-hero-image"
+      />
+      <div className="home-hero-wash" aria-hidden />
+
+      <div className="home-hero-copy">
+        <p className="font-dm home-hero-eyebrow">Handcrafted in South Africa</p>
+        <h1 className="font-cormorant text-ink">
+          Timeless Style.<br />Effortless Comfort.
+        </h1>
+        <p className="font-dm home-hero-text">Handcrafted espadrilles for every step of your journey.</p>
+        <Link href="/shop" className="font-dm home-button">
+          Shop the collection <span aria-hidden>→</span>
+        </Link>
       </div>
 
-      {/* ── Left panel ── */}
-      <div
-        className="hero-left"
-        style={{
-          flex: '0 0 50%',
-          display: 'flex',
-          alignItems: 'center',
-          paddingTop: 80,
-          position: 'relative',
-          zIndex: 1,
-        }}
-      >
-        <div
-          className={`transition-all duration-700 ease-out ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
-          style={{
-            padding: '0 clamp(24px, 6vw, 80px)',
-            width: '100%',
-          }}
-        >
-          <p className="font-dm text-xs tracking-[0.25em] uppercase font-medium mb-6" style={{ color: '#553D2E' }}>
-            Handcrafted in South Africa
-          </p>
-
-          {/* Dynamic tagline — dual-layer crossfade */}
-          <div className="relative mb-6">
-            {/* Invisible spacer using the longest possible tagline to reserve height */}
-            <h1
-              className="font-cormorant font-semibold text-5xl sm:text-6xl lg:text-7xl xl:text-8xl text-ink leading-[1.05] invisible pointer-events-none"
-              aria-hidden
-            >
-              Wrap your feet<br />
-              <span className="italic">in pure</span><br />
-              softness
-            </h1>
-            {(['a', 'b'] as const).map(layer => {
-              const slide = layer === 'a' ? taglineA : taglineB
-              const isActive = activeLayer === layer
-              return (
-                <h1
-                  key={layer}
-                  className="font-cormorant font-semibold text-5xl sm:text-6xl lg:text-7xl xl:text-8xl text-ink leading-[1.05]"
-                  style={{
-                    position: 'absolute', top: 0, left: 0, width: '100%',
-                    opacity: isActive ? 1 : 0,
-                    transition: `opacity 600ms ease-in-out`,
-                    pointerEvents: isActive ? 'auto' : 'none',
-                  }}
-                >
-                  {slide.tagline}<br />
-                  <span className="italic" style={{ color: '#9D7657' }}>{slide.taglineItalic}</span><br />
-                  {slide.taglineEnd}
-                </h1>
-              )
-            })}
-          </div>
-
-          <p className="font-dm text-base lg:text-lg text-ink-light leading-relaxed mb-10 max-w-md">
-            Luxury espadrilles handcrafted with French and Spanish inspiration. Comfort in every way.
-          </p>
-          <div className="flex flex-wrap gap-4">
-            <Link
-              href="/shop"
-              className="inline-block font-dm text-sm font-medium bg-clay hover:bg-clay-dark text-cream px-8 py-3.5 transition-all duration-300 tracking-wide"
-            >
-              Shop Collection
-            </Link>
-            <Link
-              href="/about"
-              className="inline-block font-dm text-sm font-medium border border-ink text-ink hover:bg-ink hover:text-cream px-8 py-3.5 transition-all duration-300 tracking-wide"
-            >
-              Our Story
-            </Link>
-          </div>
-        </div>
-      </div>
-
-      {/* ── Right panel ── */}
-      <div
-        className={`hero-right transition-all duration-700 delay-200 ease-out ${visible ? 'opacity-100' : 'opacity-0'}`}
-        style={{ flex: '0 0 50%', position: 'relative', overflow: 'hidden', zIndex: 1 }}
-        onMouseEnter={() => { setHovered(true); setArrowsVisible(true) }}
-        onMouseLeave={() => { setHovered(false); setArrowsVisible(false) }}
-      >
-        <div className="hero-product-frame">
-          <div className="hero-product-image">
-            <Image
-              src={img(current.src)}
-              alt={current.name}
-              fill
-              className="object-contain object-center"
-              priority
-              sizes="(max-width: 1023px) 68vw, 30vw"
-              style={{
-                opacity: transitioning ? 0 : 1,
-                transition: `opacity ${FADE_DURATION}ms ease-in-out`,
-              }}
-            />
-
-            {next && (
-              <Image
-                src={img(next.src)}
-                alt={next.name}
-                fill
-                className="object-contain object-center"
-                sizes="(max-width: 1023px) 68vw, 30vw"
-                style={{
-                  opacity: transitioning ? 1 : 0,
-                  transition: `opacity ${FADE_DURATION}ms ease-in-out`,
-                }}
-              />
-            )}
-          </div>
-
-          <div className="hero-product-footer">
-            <Link href={`/product/${current.slug}`}
-              style={{
-                opacity: badgeVisible ? 1 : 0,
-                transition: 'opacity 300ms ease',
-                textDecoration: 'none',
-                display: 'block',
-              }}>
-              <p className="font-dm text-[9px] tracking-[0.12em] uppercase text-ink-light">Now Viewing</p>
-              <p className="font-cormorant font-semibold text-base text-ink leading-tight">{current.name}</p>
-              <p className="font-dm text-[11px] text-ink-mid">{current.price}</p>
-            </Link>
-
-            <div className="hero-cycle-dots">
-              {heroSlides.map((_, i) => (
-                <button key={i} onClick={() => goToSlide(i)} aria-label={`Go to slide ${i + 1}`}
-                  style={{
-                    width: i === currentIndex ? 9 : 6,
-                    height: i === currentIndex ? 9 : 6,
-                    borderRadius: '50%',
-                    background: i === currentIndex ? '#C49B78' : 'rgba(29,27,25,0.26)',
-                    border: 'none', cursor: 'pointer', padding: 0,
-                    transition: 'all 300ms ease',
-                  }}
-                />
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* Left arrow */}
-        <button onClick={e => { e.preventDefault(); goBack() }} aria-label="Previous slide"
-          style={{
-            position: 'absolute', left: 20, top: '50%', transform: 'translateY(-50%)',
-            width: 36, height: 36, borderRadius: '50%',
-            background: 'rgba(29,27,25,0.45)', backdropFilter: 'blur(4px)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            opacity: arrowsVisible ? 1 : 0, transition: 'opacity 250ms ease',
-            zIndex: 10, border: 'none', cursor: 'pointer',
-          }}>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5"><polyline points="15 18 9 12 15 6"/></svg>
-        </button>
-
-        {/* Right arrow */}
-        <button onClick={e => { e.preventDefault(); advance() }} aria-label="Next slide"
-          style={{
-            position: 'absolute', right: 20, top: '50%', transform: 'translateY(-50%)',
-            width: 36, height: 36, borderRadius: '50%',
-            background: 'rgba(29,27,25,0.45)', backdropFilter: 'blur(4px)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            opacity: arrowsVisible ? 1 : 0, transition: 'opacity 250ms ease',
-            zIndex: 10, border: 'none', cursor: 'pointer',
-          }}>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5"><polyline points="9 18 15 12 9 6"/></svg>
-        </button>
-
-      </div>
-
-      {/* Mobile / responsive styles */}
       <style>{`
-        .hero-background-layer {
-          position: absolute;
-          inset: 0;
-          z-index: 0;
+        .home-hero {
+          position: relative;
+          margin-top: 64px;
+          height: clamp(430px, 38vw, 555px);
           overflow: hidden;
           background: #B99277;
         }
-        .hero-background {
-          object-fit: cover;
-          object-position: center 53%;
-        }
-        /* Warm wash from the left so the headline stays readable over the photo */
-        .hero-background-wash {
+        @media (min-width: 1024px) { .home-hero { margin-top: 80px; } }
+        .home-hero-image { object-fit: cover; object-position: center 53%; }
+        .home-hero-wash {
           position: absolute;
           inset: 0;
           background:
-            linear-gradient(90deg, rgba(226,194,171,0.82) 0%, rgba(226,194,171,0.6) 38%, rgba(226,194,171,0.05) 70%),
+            linear-gradient(90deg, rgba(226,194,171,0.72) 0%, rgba(226,194,171,0.45) 34%, rgba(226,194,171,0.04) 70%),
             linear-gradient(0deg, rgba(39,29,23,0.12), transparent 35%);
         }
-        .hero-product-frame {
-          position: absolute;
-          left: 50%;
-          top: 52%;
-          width: min(68%, 430px);
-          aspect-ratio: 4 / 5;
-          transform: translate(-50%, -50%);
-          z-index: 8;
-          overflow: hidden;
-          border-radius: 8px;
-          border: 1px solid rgba(255,255,255,0.34);
-          background: rgba(250,244,239,0.18);
-          box-shadow: 0 18px 42px rgba(29,27,25,0.16);
-        }
-        .hero-product-image {
-          position: absolute;
-          inset: 4% 5% 22%;
-        }
-        .hero-product-footer {
-          position: absolute;
-          left: 10px;
-          right: 10px;
-          bottom: 10px;
-          min-height: 58px;
+        .home-hero-copy {
+          position: relative;
           display: flex;
-          align-items: end;
-          justify-content: space-between;
-          gap: 12px;
-          padding: 9px 10px;
-          border-radius: 7px;
-          background: rgba(255,255,255,0.76);
-          border: 1px solid rgba(196,155,120,0.18);
+          flex-direction: column;
+          justify-content: center;
+          align-items: flex-start;
+          width: min(660px, 56%);
+          height: 100%;
+          padding: 45px 0 45px clamp(36px, 7vw, 105px);
         }
-        .hero-cycle-dots {
-          display: flex;
-          align-items: center;
-          justify-content: flex-end;
-          gap: 5px;
-          max-width: 112px;
-          flex-wrap: wrap;
-          padding-bottom: 3px;
+        .home-hero-eyebrow {
+          margin: 0 0 14px;
+          color: #553D2E;
+          font-size: 10px;
+          font-weight: 600;
+          letter-spacing: 0.13em;
         }
-        @media (max-width: 1023px) {
-          .home-hero {
-            flex-direction: row;
-            min-height: 100svh;
-          }
-          .hero-left {
-            flex: 0 0 52% !important;
-            width: 52% !important;
-            padding-top: 72px !important;
-            padding-bottom: 18px !important;
-          }
-          .hero-left > div {
-            padding: 0 0 0 18px !important;
-            max-width: 100%;
-          }
-          .hero-left p:first-child {
-            font-size: 8px !important;
-            letter-spacing: 0.16em !important;
-            margin-bottom: 12px !important;
-          }
-          .hero-left h1 {
-            font-size: clamp(2rem, 12vw, 3.15rem) !important;
-            line-height: 0.96 !important;
-          }
-          .hero-left .relative.mb-6 {
-            margin-bottom: 12px !important;
-          }
-          .hero-left p.font-dm.text-base {
-            max-width: 15rem !important;
-            font-size: 11px !important;
-            line-height: 1.45 !important;
-            margin-bottom: 16px !important;
-          }
-          .hero-left .flex.flex-wrap {
-            gap: 8px !important;
-          }
-          .hero-left a {
-            font-size: 10px !important;
-            padding: 9px 11px !important;
-          }
-          .hero-right {
-            flex: 0 0 48% !important;
-            width: 48% !important;
-            min-height: 100svh !important;
-            height: auto !important;
-          }
-          .hero-blend { display: none !important; }
-          .hero-product-frame {
-            width: min(43vw, 190px);
-            top: 53%;
-            aspect-ratio: 4 / 5;
-          }
-          .hero-product-image {
-            inset: 5% 5% 30%;
-          }
-          .hero-product-footer {
-            left: 7px;
-            right: 7px;
-            bottom: 7px;
-            min-height: 56px;
-            padding: 7px;
-            gap: 7px;
-          }
-          .hero-product-footer p:first-child {
-            font-size: 7px !important;
-          }
-          .hero-product-footer p:nth-child(2) {
-            font-size: 13px !important;
-          }
-          .hero-product-footer p:nth-child(3) {
-            font-size: 9px !important;
-          }
-          .hero-cycle-dots {
-            max-width: 48px;
-            gap: 3px;
-          }
-          .hero-background-wash {
-            background:
-              linear-gradient(90deg, rgba(226,194,171,0.82) 0%, rgba(226,194,171,0.6) 48%, rgba(226,194,171,0.1) 85%),
-              linear-gradient(0deg, rgba(39,29,23,0.12), transparent 35%);
-          }
+        .home-hero-copy h1 {
+          margin: 0;
+          max-width: 600px;
+          font-size: 57px;
+          font-weight: 400;
+          line-height: 0.96;
         }
-        @media (max-width: 380px) {
-          .hero-left {
-            flex-basis: 54% !important;
-            width: 54% !important;
-          }
-          .hero-right {
-            flex-basis: 46% !important;
-            width: 46% !important;
-          }
-          .hero-left h1 {
-            font-size: clamp(1.75rem, 11vw, 2.55rem) !important;
-          }
-          .hero-left p.font-dm.text-base {
-            font-size: 10px !important;
-            max-width: 12rem !important;
-          }
-          .hero-product-frame {
-            width: min(42vw, 155px);
-          }
+        .home-hero-text {
+          max-width: 330px;
+          margin: 15px 0 19px;
+          color: #29211C;
+          font-size: 14px;
         }
-        @media (prefers-reduced-motion: reduce) {
-          * { transition-duration: 0ms !important; animation-duration: 0ms !important; }
+        @media (min-width: 1440px) {
+          .home-hero { height: 555px; }
+          .home-hero-copy h1 { font-size: 61px; }
+        }
+        @media (max-width: 950px) {
+          .home-hero { height: 475px; }
+          .home-hero-copy { width: 59%; }
+          .home-hero-copy h1 { font-size: 51px; }
+        }
+        @media (max-width: 680px) {
+          .home-hero { height: 570px; }
+          .home-hero-image { object-position: 58% center; }
+          .home-hero-wash {
+            background: linear-gradient(0deg, rgba(222,188,164,0.92), rgba(222,188,164,0.72) 32%, rgba(222,188,164,0.04) 78%);
+          }
+          .home-hero-copy {
+            position: absolute;
+            inset: auto 0 0;
+            width: 100%;
+            height: auto;
+            padding: 27px 24px 30px;
+          }
+          .home-hero-eyebrow { margin-bottom: 7px; }
+          .home-hero-copy h1 { max-width: 370px; font-size: 46px; }
+          .home-hero-text { max-width: 290px; margin: 10px 0 14px; font-size: 12px; }
         }
       `}</style>
     </section>

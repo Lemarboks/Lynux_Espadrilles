@@ -30,6 +30,26 @@
   }
 }
 
+/* Homepage buttons (concept design): soft tan fill, or ink outline */
+.home-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  min-height: 42px;
+  padding: 0 17px;
+  border: 1px solid #E4C9B3;
+  background: #E4C9B3;
+  color: var(--color-ink);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+.home-button:hover { border-color: #C49B78; background: #C49B78; }
+.home-button-outline { border-color: var(--color-ink); background: transparent; }
+.home-button-outline:hover { border-color: var(--color-ink); background: var(--color-ink); color: var(--color-cream); }
+
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
