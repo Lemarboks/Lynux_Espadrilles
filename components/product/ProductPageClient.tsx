@@ -278,11 +278,15 @@ export default function ProductPageClient({ slug }: { slug: string }) {
         .lx-product-layout { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(340px, 0.8fr); gap: clamp(28px, 5vw, 72px); align-items: start; }
         .lx-gallery { display: grid; grid-template-columns: 55px minmax(0, 1fr); gap: 9px; }
         .lx-gallery-thumbs { display: flex; flex-direction: column; gap: 7px; }
-        .lx-gallery-thumb { position: relative; aspect-ratio: 1; padding: 0; overflow: hidden; border: 1px solid #DFCFC4; border-radius: 2px; background: #E8D4C7; cursor: pointer; }
+        .lx-gallery-thumb { position: relative; aspect-ratio: 1; padding: 0; overflow: hidden; border: 1px solid #C2A994; border-radius: 2px; background: #E8D4C7; cursor: pointer; }
         .lx-gallery-thumb[aria-current="true"] { border-color: var(--color-ink); }
         .lx-gallery-thumb img, .lx-gallery-main img { object-fit: cover; }
         /* Border keeps white product photos from blending into the page */
-        .lx-gallery-main { position: relative; grid-column: 2; aspect-ratio: 1.08; overflow: hidden; border: 1px solid #DFCFC4; border-radius: 2px; background: #EAD9CE; }
+        .lx-gallery-main {
+          position: relative; grid-column: 2; aspect-ratio: 1.08; overflow: hidden;
+          border: 1px solid #C2A994; border-radius: 2px; background: #EAD9CE;
+          box-shadow: 0 10px 28px rgba(41,36,30,0.12);
+        }
         .lx-product-info { position: sticky; top: 110px; padding: 8px 0; }
         .lx-product-title { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; }
         .lx-product-title h1 { margin: 0; font-size: 43px; font-weight: 400; line-height: 1.08; text-transform: uppercase; }
