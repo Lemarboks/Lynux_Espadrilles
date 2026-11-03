@@ -72,7 +72,14 @@ function OrderCard({ order, onSaved }: { order: OrderRecord; onSaved: (o: OrderR
         </div>
       </div>
 
-      {order.paymentCheck === 'mismatch' && (
+      {order.paymentCheck === 'mismatch' && order.items.length === 0 && (
+        <div className="mb-4 px-4 py-3 bg-sand border border-sand-dark">
+          <p className="font-dm text-sm text-ink-mid">
+            This payment didn’t come through the website checkout (e.g. a Paystack payment link or invoice), so there are no item details. Check Paystack for what it was for.
+          </p>
+        </div>
+      )}
+      {order.paymentCheck === 'mismatch' && order.items.length > 0 && (
         <div className="mb-4 px-4 py-3 bg-red-50 border border-red-200">
           <p className="font-dm text-sm text-red-700">
             ⚠️ Amount paid doesn’t match the items{order.expectedTotal !== null && ` (expected ${formatPrice(order.expectedTotal)})`}. Check this payment in Paystack before shipping.
