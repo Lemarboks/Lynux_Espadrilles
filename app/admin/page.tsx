@@ -45,7 +45,7 @@ function OrderCard({ order, onSaved }: { order: OrderRecord; onSaved: (o: OrderR
     try {
       const res = await fetch('/api/admin/orders', {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'X-Lynux-Admin': '1' },
         body: JSON.stringify({ reference: order.reference, status, tracking, adminNotes, notifyCustomer: becomingShipped && notifyCustomer }),
       })
       const body = await res.json()
@@ -177,7 +177,7 @@ export default function AdminPage() {
     setImporting(true)
     setImportMessage('')
     try {
-      const res = await fetch('/api/admin/import', { method: 'POST' })
+      const res = await fetch('/api/admin/import', { method: 'POST', headers: { 'X-Lynux-Admin': '1' } })
       const body = await res.json()
       if (!res.ok) throw new Error(body.error)
       setImportMessage(`Checked ${body.scanned} Paystack payments · ${body.imported} new order${body.imported === 1 ? '' : 's'} added`)
